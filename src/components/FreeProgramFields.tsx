@@ -1,6 +1,5 @@
-import { BadgeCheckIcon } from 'lucide-react';
+import { BadgeCheckIcon, TriangleAlertIcon } from 'lucide-react';
 
-import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useFreeProgram } from '@/features/free-program/queries';
@@ -19,7 +18,8 @@ const CATEGORIES: PatientCategory[] = ['umum', 'lansia', 'disabilitas'];
 
 /**
  * "Program ongkir gratis" on the staff order forms: the staff verify the patient
- * (lansia/disabilitas + domicile from the KTP). Hidden while the Admin hasn't
+ * (lansia/disabilitas + domicile from the KTP) and pick the category, which marks
+ * the domicile as checked. Hidden while the Admin hasn't
  * turned the program on. `price` is the tariff, shown as the normal price.
  */
 export default function FreeProgramFields({
@@ -49,7 +49,9 @@ export default function FreeProgramFields({
           onValueChange={(v) => {
             if (!v) return; // re-clicking the active item sends ''
             const category = v as PatientCategory;
-            onChange({ category, domicileChecked: category === 'umum' ? false : value.domicileChecked });
+            // Picking Lansia/Disabilitas is the staff's statement that they checked
+            // the patient's documents (see the notice below).
+            onChange({ category, domicileChecked: category !== 'umum' });
           }}
         >
           {CATEGORIES.map((c) => (
@@ -65,17 +67,23 @@ export default function FreeProgramFields({
       </div>
 
       {special && (
-        <label className="flex items-start gap-2 text-sm">
-          <Checkbox
-            className="mt-0.5"
-            checked={value.domicileChecked}
-            onCheckedChange={(v) => onChange({ ...value, domicileChecked: v === true })}
-          />
-          <span>
-            Domisili <b>{program.domicile}</b> — sudah dicek dari KTP
-            {value.category === 'disabilitas' && ' dan kartu/surat keterangan disabilitas'}
-          </span>
-        </label>
+        <div className="flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
+          <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" />
+          <div>
+            <p className="font-medium">Pastikan sudah dicek sebelum memilih {PATIENT_CATEGORY_LABELS[value.category]}:</p>
+            <ul className="mt-1 list-disc space-y-0.5 ps-4">
+              <li>
+                KTP pasien berdomisili <b>{program.domicile}</b>
+              </li>
+              {value.category === 'lansia' ? (
+                <li>Umur pasien 60 tahun ke atas (lihat tanggal lahir di KTP)</li>
+              ) : (
+                <li>Kartu / surat keterangan disabilitas</li>
+              )}
+            </ul>
+            <p className="mt-1 text-xs">Nama petugas yang memilih tercatat di riwayat order.</p>
+          </div>
+        </div>
       )}
 
       {free ? (

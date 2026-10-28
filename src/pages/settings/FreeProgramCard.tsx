@@ -50,7 +50,7 @@ export default function FreeProgramCard() {
             placeholder="Kota Magelang"
             onChange={(e) => setEdits((prev) => ({ ...prev, domicile: e.target.value }))}
           />
-          <p className="text-xs text-muted-foreground">Ditampilkan ke petugas: "Domisili … — sudah dicek dari KTP".</p>
+          <p className="text-xs text-muted-foreground">Ditampilkan ke petugas: "KTP pasien berdomisili …".</p>
         </div>
         <Button onClick={save} disabled={!dirty || update.isPending}>
           Simpan

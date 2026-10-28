@@ -379,6 +379,7 @@ export default function CreateOrderPage() {
                         value={field.value}
                         onChange={field.onChange}
                         invalid={!!errors.service_id}
+                        free={isFree}
                       />
                     )}
                   />
@@ -395,7 +396,7 @@ export default function CreateOrderPage() {
                 <FieldError message={errors.notes?.message} />
               </FormSection>
 
-              <QuoteLine quote={selectedQuote} loading={quote.isFetching} />
+              <QuoteLine quote={selectedQuote} loading={quote.isFetching} free={isFree} />
               <OutOfRangeDialog quote={quote.data} rsName={rsOrg?.name} />
 
               <div className="flex justify-end gap-2">
