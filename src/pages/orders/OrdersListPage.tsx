@@ -9,6 +9,7 @@ import { PlusIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
+import OrderPharmacy from '@/components/OrderPharmacy';
 import OrderPrice from '@/components/OrderPrice';
 import Loader from '@/components/Loader';
 import DataTablePagination from '@/components/DataTablePagination';
@@ -179,6 +180,10 @@ export default function OrdersListPage() {
             <div className="text-xs text-muted-foreground">{info.row.original.customer_phone}</div>
           </div>
         ),
+      }),
+      columnHelper.accessor('care_type', {
+        header: 'Farmasi',
+        cell: (info) => <OrderPharmacy order={info.row.original} />,
       }),
       columnHelper.accessor((row) => row.service?.name, {
         id: 'service',

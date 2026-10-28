@@ -8,6 +8,7 @@ import Loader from '@/components/Loader';
 import LocationPicker from '@/components/LocationPicker';
 import FormSection from '@/components/FormSection';
 import PaymentMethodDialog from '@/components/PaymentMethodDialog';
+import PharmacyFields, { NO_PHARMACY, pharmacyError, pharmacyPayload, type PharmacyValue } from '@/components/PharmacyFields';
 import OutOfRangeDialog from '@/components/OutOfRangeDialog';
 import QuoteLine, { distanceText } from '@/components/QuoteLine';
 import ServiceChoice from '@/components/ServiceChoice';
@@ -20,6 +21,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import type { ReturningPatient } from '@/features/public/queries';
 import { useCreatePublicOrder, usePublicOrganization, usePublicServices, useQuote } from '@/features/public/queries';
+import { usePublicPharmacy } from '@/features/wards/queries';
 import { apiErrorMessage } from '@/lib/api';
 import type { LatLng } from '@/lib/geocode';
 import type { PaymentMethod } from '@/types/models';
@@ -60,6 +62,11 @@ export default function PublicOrderFormPage() {
   // Valid form waiting for the payment choice in the pop-up.
   const [draft, setDraft] = useState<FormValues | null>(null);
   const [patientMode, setPatientMode] = useState<'new' | 'returning'>('new');
+  // Farmasi: only while the Admin turned it on (then required).
+  const { data: pharmacySetup } = usePublicPharmacy();
+  const [pharmacy, setPharmacy] = useState<PharmacyValue>(NO_PHARMACY);
+  const [checkPharmacy, setCheckPharmacy] = useState(false);
+  const pharmacyMissing = pharmacySetup?.enabled ? pharmacyError(pharmacy) : null;
 
   const {
     register,
@@ -118,6 +125,8 @@ export default function PublicOrderFormPage() {
   };
 
   const onSubmit = (values: FormValues) => {
+    setCheckPharmacy(true);
+    if (pharmacyMissing) return;
     create.reset();
     setDraft(values);
   };
@@ -134,6 +143,7 @@ export default function PublicOrderFormPage() {
         medical_record_no: draft.medical_record_no?.trim() || undefined,
         dropoff_lat: dropoffPoint?.[0],
         dropoff_lng: dropoffPoint?.[1],
+        ...(pharmacySetup?.enabled ? pharmacyPayload(pharmacy) : {}),
       });
       navigate(`/order/${encodeURIComponent(code)}/selesai`, { replace: true });
     } catch {
@@ -224,6 +234,14 @@ export default function PublicOrderFormPage() {
                   <FieldError message={errors.patient_name?.message} />
                 </div>
               </div>
+              {pharmacySetup?.enabled && (
+                <PharmacyFields
+                  value={pharmacy}
+                  onChange={setPharmacy}
+                  error={checkPharmacy ? pharmacyMissing : null}
+                  wards={pharmacySetup.wards}
+                />
+              )}
             </FormSection>
 
             <FormSection step={2} title="Penerima" hint="Orang yang akan menerima paket di alamat tujuan.">

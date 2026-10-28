@@ -6,7 +6,8 @@ import { useEffect, useRef, useState } from 'react';
 import { formatDateTime, formatRupiah } from '@/lib/format';
 import { PAYMENT_STATUS_LABELS } from '@/lib/payment';
 import { formatSchedule } from '@/lib/schedule';
-import type { Order } from '@/types/models';
+import { pharmacyDetail } from '@/components/OrderPharmacy';
+import { CARE_TYPE_LABELS, type Order } from '@/types/models';
 
 /** CSS for printing a ShippingLabel on 100×150 mm thermal paper (see printElement). */
 export const SHIPPING_LABEL_PRINT_CSS = `
@@ -129,6 +130,14 @@ export default function ShippingLabel({
           <dl className="grid grid-cols-[auto_1fr] gap-x-[2mm] gap-y-[0.3mm] text-[8pt]">
             <dt className="font-bold">Kurir</dt>
             <dd>{order.courier?.user?.name ?? '—'}</dd>
+            {order.care_type && (
+              <>
+                <dt className="font-bold">Farmasi</dt>
+                <dd className="font-bold">
+                  {[CARE_TYPE_LABELS[order.care_type], pharmacyDetail(order)].filter(Boolean).join(' · ')}
+                </dd>
+              </>
+            )}
             <dt className="font-bold">Masuk</dt>
             <dd>{formatDateTime(order.created_at)}</dd>
             <dt className="font-bold">Jadwal</dt>

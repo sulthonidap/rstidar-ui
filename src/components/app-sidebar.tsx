@@ -1,5 +1,6 @@
 import {
   BanknoteIcon,
+  BedIcon,
   BoxIcon,
   BuildingIcon,
   ChartColumnIcon,
@@ -76,6 +77,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
       items: [
         { to: '/pengaturan/rs', label: 'Profil RS', icon: BuildingIcon },
         { to: '/services', label: 'Tipe Layanan', icon: TagIcon },
+        { to: '/pengaturan/bangsal', label: 'Bangsal', icon: BedIcon },
         { to: '/pengaturan/pembayaran', label: 'Pembayaran', icon: CreditCardIcon },
         { to: '/users', label: 'Kelola User', icon: UsersIcon },
       ],

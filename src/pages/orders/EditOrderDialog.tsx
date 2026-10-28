@@ -25,6 +25,7 @@ import { apiErrorMessage } from '@/lib/api';
 import { formatRupiah } from '@/lib/format';
 import type { LatLng } from '@/lib/geocode';
 import LocationPicker from '@/components/LocationPicker';
+import PharmacyFields, { pharmacyError, pharmacyOf, pharmacyPayload, type PharmacyValue } from '@/components/PharmacyFields';
 import FreeProgramFields, { type FreeProgramValue } from '@/components/FreeProgramFields';
 import { useFreeProgram } from '@/features/free-program/queries';
 import type { ScheduleValue } from '@/components/SchedulePicker';
@@ -112,6 +113,10 @@ export function EditOrderDialog({
     domicileChecked: !!order.domicile_checked,
   });
   const { data: program } = useFreeProgram();
+  // Public/kiosk orders come without farmasi; once picked it must be complete.
+  const [pharmacy, setPharmacy] = useState<PharmacyValue>(() => pharmacyOf(order));
+  const [checkPharmacy, setCheckPharmacy] = useState(false);
+  const pharmacyMissing = pharmacy.careType ? pharmacyError(pharmacy) : null;
   const isFree = !!program?.enabled && freeProgram.category !== 'umum' && freeProgram.domicileChecked;
   // A free order costs Rp0 whatever the tariff.
   const newPrice = quote.data ? (isFree ? 0 : quote.data.price) : undefined;
@@ -120,6 +125,8 @@ export function EditOrderDialog({
 
   const onSubmit = async (values: FormValues) => {
     setError(null);
+    setCheckPharmacy(true);
+    if (pharmacyMissing) return;
     try {
       await update.mutateAsync({
         ...values,
@@ -133,6 +140,7 @@ export function EditOrderDialog({
         dropoff_lng: dropoffPoint?.[1] ?? null,
         patient_category: freeProgram.category,
         domicile_checked: freeProgram.domicileChecked,
+        ...pharmacyPayload(pharmacy),
       });
       onOpenChange(false);
     } catch (err) {
@@ -250,6 +258,12 @@ export function EditOrderDialog({
               <FieldError message={errors.medical_record_no?.message} />
             </div>
           </div>
+          <PharmacyFields
+            value={pharmacy}
+            onChange={setPharmacy}
+            error={checkPharmacy ? pharmacyMissing : null}
+            currentWard={order.ward}
+          />
           <FreeProgramFields value={freeProgram} onChange={setFreeProgram} price={quote.data?.price} />
           <div className="space-y-1.5">
             <Label>Jadwal kirim</Label>

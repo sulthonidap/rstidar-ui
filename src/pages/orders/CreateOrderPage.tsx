@@ -23,6 +23,7 @@ import type { ScheduleValue } from '@/components/SchedulePicker';
 import SchedulePicker from '@/components/SchedulePicker';
 import LocationPicker from '@/components/LocationPicker';
 import FormSection from '@/components/FormSection';
+import PharmacyFields, { NO_PHARMACY, pharmacyError, pharmacyPayload, type PharmacyValue } from '@/components/PharmacyFields';
 import FreeProgramFields, { NO_FREE_PROGRAM, type FreeProgramValue } from '@/components/FreeProgramFields';
 import { useFreeProgram } from '@/features/free-program/queries';
 import PaymentMethodDialog from '@/components/PaymentMethodDialog';
@@ -83,6 +84,10 @@ export default function CreateOrderPage() {
   const { data: program } = useFreeProgram();
   const isFree = !!program?.enabled && freeProgram.category !== 'umum' && freeProgram.domicileChecked;
   const isFarmasi = hasRole(user, 'farmasi');
+  const [pharmacy, setPharmacy] = useState<PharmacyValue>(NO_PHARMACY);
+  // Shown once the staff tried to submit.
+  const [checkPharmacy, setCheckPharmacy] = useState(false);
+  const pharmacyMissing = pharmacyError(pharmacy);
 
   const {
     register,
@@ -139,10 +144,13 @@ export default function CreateOrderPage() {
 
   // Nothing picked yet: the hidden recipient fields fail validation — point at the picker instead.
   const onInvalid = () => {
+    setCheckPharmacy(true);
     if (mode === 'existing' && !picked) setPickError('Pilih customer dari daftar, atau pakai "Customer baru".');
   };
 
   const onSubmit = (values: FormValues) => {
+    setCheckPharmacy(true);
+    if (pharmacyMissing) return;
     if (mode === 'existing' && !picked) {
       setPickError('Pilih customer dari daftar, atau pakai "Customer baru".');
       return;
@@ -177,6 +185,7 @@ export default function CreateOrderPage() {
         payment_method,
         patient_category: freeProgram.category,
         domicile_checked: freeProgram.domicileChecked,
+        ...pharmacyPayload(pharmacy),
       });
       navigate(`/orders/${order.id}`, { replace: true, state: { created: true } });
     } catch {
@@ -325,6 +334,12 @@ export default function CreateOrderPage() {
                     <FieldError message={errors.medical_record_no?.message} />
                   </div>
                 </div>
+
+                <PharmacyFields
+                  value={pharmacy}
+                  onChange={setPharmacy}
+                  error={checkPharmacy ? pharmacyMissing : null}
+                />
 
                 <FreeProgramFields value={freeProgram} onChange={setFreeProgram} price={selectedQuote?.price} />
               </FormSection>

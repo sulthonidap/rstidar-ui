@@ -157,6 +157,21 @@ export interface FreeProgram {
   domicile: string;
 }
 
+/** Where the prescription comes from: rawat jalan (+ pharmacy queue no.) or rawat inap (+ ward). */
+export type CareType = 'rawat_jalan' | 'rawat_inap';
+
+export const CARE_TYPE_LABELS: Record<CareType, string> = {
+  rawat_jalan: 'Rawat jalan',
+  rawat_inap: 'Rawat inap',
+};
+
+/** Bangsal rawat inap (master data, Admin → Pengaturan → Bangsal). */
+export interface Ward {
+  id: number;
+  name: string;
+  is_active: boolean;
+}
+
 export interface Order {
   id: number;
   code: string;
@@ -187,6 +202,11 @@ export interface Order {
   domicile_checked?: boolean;
   is_free?: boolean;
   normal_price?: number | null;
+  /** Farmasi: rawat jalan + queue no., or rawat inap + ward. Null on public/kiosk orders until staff fill it. */
+  care_type?: CareType | null;
+  pharmacy_queue_no?: string | null;
+  ward_id?: number | null;
+  ward?: Ward | null;
   created_by?: number | null;
   creator?: User | null;
   price: number;

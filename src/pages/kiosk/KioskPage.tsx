@@ -17,6 +17,7 @@ import OutOfRangeDialog from '@/components/OutOfRangeDialog';
 import PaymentChoice from '@/components/PaymentChoice';
 import PaymentPanel from '@/components/PaymentPanel';
 import QuoteLine, { distanceText } from '@/components/QuoteLine';
+import PharmacyFields, { NO_PHARMACY, pharmacyError, pharmacyPayload, type PharmacyValue } from '@/components/PharmacyFields';
 import ServiceChoice from '@/components/ServiceChoice';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ import {
   useReturningPatient,
   useTrackOrder,
 } from '@/features/public/queries';
+import { usePublicPharmacy } from '@/features/wards/queries';
 import { apiErrorMessage } from '@/lib/api';
 import { formatRupiah } from '@/lib/format';
 import type { LatLng } from '@/lib/geocode';
@@ -179,6 +181,10 @@ export default function KioskPage() {
   const [payment, setPayment] = useState<PaymentMethod | ''>('');
   const [query, setQuery] = useState('');
   const [code, setCode] = useState('');
+  // Farmasi: only while the Admin turned it on (then required).
+  const { data: pharmacySetup } = usePublicPharmacy();
+  const [pharmacy, setPharmacy] = useState<PharmacyValue>(NO_PHARMACY);
+  const askPharmacy = !!pharmacySetup?.enabled;
   const placed = useTrackOrder(code);
 
   const quote = useQuote(org ? { dropoff_lat: point?.[0], dropoff_lng: point?.[1] } : null);
@@ -196,6 +202,7 @@ export default function KioskPage() {
     setPayment('');
     setQuery('');
     setCode('');
+    setPharmacy(NO_PHARMACY);
     create.reset();
     lookup.reset();
   };
@@ -236,6 +243,7 @@ export default function KioskPage() {
         dropoff_lat: point?.[0],
         dropoff_lng: point?.[1],
         payment_method: payment,
+        ...(askPharmacy ? pharmacyPayload(pharmacy) : {}),
         website: '',
       });
       setCode(res.code);
@@ -252,7 +260,8 @@ export default function KioskPage() {
       draft.medical_record_no.trim() !== '' &&
       draft.patient_name.trim() !== '' &&
       draft.customer_name.trim() !== '' &&
-      PHONE.test(draft.customer_phone.trim()),
+      PHONE.test(draft.customer_phone.trim()) &&
+      (!askPharmacy || !pharmacyError(pharmacy)),
     location: draft.dropoff_address.trim() !== '' && !quote.data?.out_of_range,
     service: !!selected,
     payment: !!payment,
@@ -393,6 +402,11 @@ export default function KioskPage() {
               />
             </Field>
           </div>
+          {askPharmacy && (
+            <div className="text-lg">
+              <PharmacyFields value={pharmacy} onChange={setPharmacy} wards={pharmacySetup?.wards} />
+            </div>
+          )}
           <KioskKeyboard />
         </Panel>
       </>

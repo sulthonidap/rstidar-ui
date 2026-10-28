@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
-import type { PublicOrganization, Service, TrackedOrder, PaymentMethod } from '@/types/models';
+import type { CareType, PublicOrganization, Service, TrackedOrder, PaymentMethod } from '@/types/models';
 
 /** The partner RS, for the order form header (fails until the admin has set it up). */
 export function usePublicOrganization() {
@@ -52,6 +52,10 @@ export interface PublicOrderPayload {
   dropoff_lat?: number;
   dropoff_lng?: number;
   payment_method: PaymentMethod;
+  /** Farmasi, when the Admin turned it on for the public form & kiosk. */
+  care_type?: CareType;
+  pharmacy_queue_no?: string | null;
+  ward_id?: number | null;
   /** Honeypot — must stay empty; bots that fill it get rejected. */
   website: string;
 }

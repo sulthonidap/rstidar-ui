@@ -2,6 +2,7 @@ import { ArrowLeftIcon, PencilIcon, WalletIcon, PrinterIcon, UserRoundPlusIcon, 
 import { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router';
 
+import OrderPharmacy from '@/components/OrderPharmacy';
 import OrderPrice from '@/components/OrderPrice';
 import Loader from '@/components/Loader';
 import DeliveryProof from '@/components/DeliveryProof';
@@ -171,6 +172,7 @@ export default function OrderDetailPage() {
                     </>
                   }
                 />
+                <Field label="Farmasi" value={<OrderPharmacy order={order} />} />
                 <Field label="Sumber" value={ORDER_SOURCE_LABELS[order.source] ?? order.source} />
                 <Field label="Kurir" value={order.courier?.user?.name ?? 'Belum ditugaskan'} />
                 <Field label="Dibuat" value={formatDateTime(order.created_at)} />

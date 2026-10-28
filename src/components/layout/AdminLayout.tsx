@@ -22,6 +22,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/couriers': 'Rekap Kurir',
   '/pengaturan/rs': 'Profil RS',
   '/services': 'Tipe Layanan',
+  '/pengaturan/bangsal': 'Bangsal',
   '/users': 'Kelola User',
   '/transactions': 'Laporan Transaksi',
 };
