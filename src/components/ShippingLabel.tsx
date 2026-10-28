@@ -27,14 +27,19 @@ const trackUrl = (code: string) => `${window.location.origin}/lacak/${encodeURIC
  *    the order code, recipient, sender, courier);
  *  - bottom ¼, below a scissors line: a stub handed to whoever placed the order,
  *    with the order code and a QR to its tracking page.
- * `onReady` fires once the barcode and the QR are drawn.
+ * `order` is the panel's (masked) order: the package label shows masked patient
+ * data, since anyone handling the package can read it (the courier has the full
+ * data in the app). `stubOrder` is the full order, used only for the stub the
+ * patient keeps. `onReady` fires once the barcode and the QR are drawn.
  */
 export default function ShippingLabel({
   order,
+  stubOrder = order,
   ref,
   onReady,
 }: {
   order: Order;
+  stubOrder?: Order;
   ref?: Ref<HTMLElement>;
   onReady?: () => void;
 }) {
@@ -73,7 +78,8 @@ export default function ShippingLabel({
   }, [order.code]);
 
   const org = order.organization;
-  const patient = order.patient_name && order.patient_name !== order.customer_name ? order.patient_name : null;
+  const patient =
+    stubOrder.patient_name && stubOrder.patient_name !== stubOrder.customer_name ? stubOrder.patient_name : null;
   const payment = order.transaction?.payment_status;
 
   return (
@@ -152,7 +158,7 @@ export default function ShippingLabel({
           <p className="text-[6.5pt] font-bold tracking-widest uppercase">Bukti pesanan · {org?.name ?? 'MedSend'}</p>
           <p className="font-mono text-[12pt] leading-tight font-bold tracking-wider">{order.code}</p>
           <p className="truncate font-semibold">
-            {patient ? `Pasien ${patient}` : order.customer_name}
+            {patient ? `Pasien ${patient}` : stubOrder.customer_name}
           </p>
           <p className="truncate text-[8pt]">
             {order.service?.name ?? '—'} · {formatRupiah(order.price)}

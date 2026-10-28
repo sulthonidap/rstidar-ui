@@ -31,13 +31,27 @@ export default function LabelPrintDialog({
     (id: number) => setReadyIds((prev) => (prev.has(id) ? prev : new Set(prev).add(id))),
     [],
   );
-  // The panel only has masked patient data; the label prints in full, so fetch it per print.
+  // The package label keeps the panel's masked patient data; only the stub the
+  // patient keeps needs the full order, fetched per print.
   const full = useLabelOrders(
     orders.map((o) => o.id),
     open,
   );
-  const labels = full.data ?? [];
-  const ready = labels.length > 0 && labels.every((o) => readyIds.has(o.id));
+  const labels = (full.data ?? []).map((stub) => {
+    const masked = orders.find((o) => o.id === stub.id);
+    const top: Order = masked
+      ? {
+          ...stub,
+          customer_name: masked.customer_name,
+          customer_phone: masked.customer_phone,
+          dropoff_address: masked.dropoff_address,
+          patient_name: masked.patient_name,
+          medical_record_no: masked.medical_record_no,
+        }
+      : stub;
+    return { top, stub };
+  });
+  const ready = labels.length > 0 && labels.every((l) => readyIds.has(l.stub.id));
   const single = orders.length === 1;
 
   const print = () => {
@@ -71,9 +85,9 @@ export default function LabelPrintDialog({
             <p className="p-8 text-center text-sm text-destructive">Gagal memuat data label. Tutup lalu coba lagi.</p>
           )}
           <div ref={stackRef} className="label-stack flex flex-col items-center gap-4">
-            {labels.map((o) => (
-              <div key={o.id} className="label-frame shadow-md">
-                <ShippingLabel order={o} onReady={() => markReady(o.id)} />
+            {labels.map(({ top, stub }) => (
+              <div key={stub.id} className="label-frame shadow-md">
+                <ShippingLabel order={top} stubOrder={stub} onReady={() => markReady(stub.id)} />
               </div>
             ))}
           </div>
