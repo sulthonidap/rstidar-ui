@@ -23,6 +23,8 @@ import type { ScheduleValue } from '@/components/SchedulePicker';
 import SchedulePicker from '@/components/SchedulePicker';
 import LocationPicker from '@/components/LocationPicker';
 import FormSection from '@/components/FormSection';
+import FreeProgramFields, { NO_FREE_PROGRAM, type FreeProgramValue } from '@/components/FreeProgramFields';
+import { useFreeProgram } from '@/features/free-program/queries';
 import PaymentMethodDialog from '@/components/PaymentMethodDialog';
 import OutOfRangeDialog from '@/components/OutOfRangeDialog';
 import QuoteLine, { distanceText } from '@/components/QuoteLine';
@@ -77,6 +79,9 @@ export default function CreateOrderPage() {
   const [dropoffPoint, setDropoffPoint] = useState<LatLng | null>(null);
   // Valid form waiting for the payment choice in the pop-up.
   const [draft, setDraft] = useState<FormValues | null>(null);
+  const [freeProgram, setFreeProgram] = useState<FreeProgramValue>(NO_FREE_PROGRAM);
+  const { data: program } = useFreeProgram();
+  const isFree = !!program?.enabled && freeProgram.category !== 'umum' && freeProgram.domicileChecked;
   const isFarmasi = hasRole(user, 'farmasi');
 
   const {
@@ -143,12 +148,16 @@ export default function CreateOrderPage() {
       return;
     }
     create.reset();
+    // Free (program ongkir gratis): nothing to pay, so no payment pop-up.
+    if (isFree) {
+      void placeOrder('cash', values);
+      return;
+    }
     setDraft(values);
   };
 
   // After the payment is picked in the pop-up.
-  const placeOrder = async (payment_method: PaymentMethod) => {
-    const values = draft;
+  const placeOrder = async (payment_method: PaymentMethod, values: FormValues | null = draft) => {
     if (!values) return;
     try {
       const order = await create.mutateAsync({
@@ -166,6 +175,8 @@ export default function CreateOrderPage() {
         dropoff_lat: dropoffPoint?.[0],
         dropoff_lng: dropoffPoint?.[1],
         payment_method,
+        patient_category: freeProgram.category,
+        domicile_checked: freeProgram.domicileChecked,
       });
       navigate(`/orders/${order.id}`, { replace: true, state: { created: true } });
     } catch {
@@ -314,6 +325,8 @@ export default function CreateOrderPage() {
                     <FieldError message={errors.medical_record_no?.message} />
                   </div>
                 </div>
+
+                <FreeProgramFields value={freeProgram} onChange={setFreeProgram} price={selectedQuote?.price} />
               </FormSection>
 
               <FormSection step={2} title="Alamat tujuan">

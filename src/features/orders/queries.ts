@@ -2,7 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { toast } from 'sonner';
 
 import { api } from '../../lib/api';
-import type { Courier, Order, OrderStats, OrderStatus, Paginated, StatsRange, ScheduleSlot, PaymentMethod } from '../../types/models';
+import type { Courier, Order, OrderStats, OrderStatus, Paginated, PatientCategory, StatsRange, ScheduleSlot, PaymentMethod } from '../../types/models';
 
 export interface OrderFilters {
   status?: OrderStatus | '';
@@ -175,6 +175,9 @@ export interface CreateOrderPayload {
   save_customer?: boolean;
   patient_name?: string;
   medical_record_no?: string;
+  /** Program ongkir gratis, checked by staff. */
+  patient_category?: PatientCategory;
+  domicile_checked?: boolean;
   /** "YYYY-MM-DD" + slot; leave out for secepatnya. */
   scheduled_date?: string;
   scheduled_slot?: ScheduleSlot;
@@ -209,6 +212,9 @@ export interface UpdateOrderPayload {
   notes?: string;
   patient_name?: string;
   medical_record_no?: string;
+  /** Program ongkir gratis, checked by staff. */
+  patient_category?: PatientCategory;
+  domicile_checked?: boolean;
   /** Empty/absent = secepatnya. */
   scheduled_date?: string;
   scheduled_slot?: ScheduleSlot;

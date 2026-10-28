@@ -25,6 +25,8 @@ import { apiErrorMessage } from '@/lib/api';
 import { formatRupiah } from '@/lib/format';
 import type { LatLng } from '@/lib/geocode';
 import LocationPicker from '@/components/LocationPicker';
+import FreeProgramFields, { type FreeProgramValue } from '@/components/FreeProgramFields';
+import { useFreeProgram } from '@/features/free-program/queries';
 import type { ScheduleValue } from '@/components/SchedulePicker';
 import SchedulePicker from '@/components/SchedulePicker';
 import type { Order } from '@/types/models';
@@ -105,7 +107,14 @@ export function EditOrderDialog({
       : null,
   );
   const quoteDistance = distanceText(quote.data?.distance_km, quote.data?.distance_source);
-  const newPrice = quote.data?.price;
+  const [freeProgram, setFreeProgram] = useState<FreeProgramValue>({
+    category: order.patient_category ?? 'umum',
+    domicileChecked: !!order.domicile_checked,
+  });
+  const { data: program } = useFreeProgram();
+  const isFree = !!program?.enabled && freeProgram.category !== 'umum' && freeProgram.domicileChecked;
+  // A free order costs Rp0 whatever the tariff.
+  const newPrice = quote.data ? (isFree ? 0 : quote.data.price) : undefined;
   const priceChanged = newPrice !== undefined && newPrice !== order.price;
   const outOfRange = !!quote.data?.out_of_range;
 
@@ -122,6 +131,8 @@ export function EditOrderDialog({
         scheduled_slot: schedule.date ? schedule.slot || undefined : undefined,
         dropoff_lat: dropoffPoint?.[0] ?? null,
         dropoff_lng: dropoffPoint?.[1] ?? null,
+        patient_category: freeProgram.category,
+        domicile_checked: freeProgram.domicileChecked,
       });
       onOpenChange(false);
     } catch (err) {
@@ -239,6 +250,7 @@ export function EditOrderDialog({
               <FieldError message={errors.medical_record_no?.message} />
             </div>
           </div>
+          <FreeProgramFields value={freeProgram} onChange={setFreeProgram} price={quote.data?.price} />
           <div className="space-y-1.5">
             <Label>Jadwal kirim</Label>
             <SchedulePicker value={schedule} onChange={setSchedule} />

@@ -138,6 +138,14 @@ export default function RecapPage() {
             { label: 'Selesai', value: `${total.done}${doneRate !== null ? ` (${doneRate}%)` : ''}` },
             { label: 'Rata-rata masuk → selesai', value: duration(total.avg_done_minutes) },
             ...(showRevenue ? [{ label: 'Pendapatan', value: formatRupiah(total.revenue ?? 0) }] : []),
+            ...(total.free > 0
+              ? [
+                  {
+                    label: 'Ongkir gratis (lansia/disabilitas)',
+                    value: `${total.free} order${total.free_value !== undefined ? ` · ${formatRupiah(total.free_value)}` : ''}`,
+                  },
+                ]
+              : []),
           ].map((s) => (
             <Card key={s.label} className="gap-1 px-4 py-3">
               <p className="text-xs text-muted-foreground">{s.label}</p>

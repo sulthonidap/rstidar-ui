@@ -37,13 +37,15 @@ export default function PaymentPanel({ order, bare }: { order: TrackedOrder; bar
   const body = (
     <div className="space-y-4 text-sm">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="text-muted-foreground">{noncash ? 'Non-tunai (transfer/QRIS)' : 'Tunai di kasir RS'}</span>
-        <span className="text-lg font-semibold">{formatRupiah(payment.amount)}</span>
+        <span className="text-muted-foreground">
+          {order.is_free ? 'Program ongkir gratis' : noncash ? 'Non-tunai (transfer/QRIS)' : 'Tunai di kasir RS'}
+        </span>
+        <span className="text-lg font-semibold">{order.is_free ? 'Gratis' : formatRupiah(payment.amount)}</span>
       </div>
 
       {payment.status === 'paid' && (
         <p className="flex items-center gap-2 font-medium text-emerald-700 dark:text-emerald-400">
-          <CheckCircle2Icon className="size-4" /> Lunas. Terima kasih!
+          <CheckCircle2Icon className="size-4" /> {order.is_free ? 'Tidak perlu membayar.' : 'Lunas. Terima kasih!'}
         </p>
       )}
       {payment.status === 'refunded' && <p className="text-muted-foreground">Pembayaran sudah dikembalikan (refund).</p>}

@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import type { PaymentInfo } from '@/features/payments/queries';
 import { usePaymentSettings, useQrisUpload, useUpdatePaymentSettings } from '@/features/payments/queries';
 import { apiErrorMessage, fileUrl } from '@/lib/api';
+import FreeProgramCard from '@/pages/settings/FreeProgramCard';
 
 type Fields = Omit<PaymentInfo, 'qris_url'>;
 
@@ -132,6 +133,8 @@ export default function PaymentSettingsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <FreeProgramCard />
     </div>
   );
 }

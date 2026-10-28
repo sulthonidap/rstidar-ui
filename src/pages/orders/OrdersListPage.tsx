@@ -9,6 +9,7 @@ import { PlusIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
+import OrderPrice from '@/components/OrderPrice';
 import Loader from '@/components/Loader';
 import DataTablePagination from '@/components/DataTablePagination';
 import type { DateRange } from '@/components/DateRangePicker';
@@ -38,7 +39,7 @@ import type { ScheduleFilter } from '@/features/orders/queries';
 import { useOrders } from '@/features/orders/queries';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useAuth } from '@/lib/auth';
-import { formatDateTime, formatRupiah, toDateParam } from '@/lib/format';
+import { formatDateTime, toDateParam } from '@/lib/format';
 import { awaitingPayment, PAYMENT_STATUS_COLOR } from '@/lib/payment';
 import { hasRole } from '@/lib/roles';
 import { isToday, parseDay, SCHEDULE_SLOTS } from '@/lib/schedule';
@@ -228,7 +229,7 @@ export default function OrdersListPage() {
       }),
       columnHelper.accessor('price', {
         header: 'Harga',
-        cell: (info) => formatRupiah(info.getValue()),
+        cell: (info) => <OrderPrice order={info.row.original} />,
       }),
       columnHelper.accessor('created_at', {
         header: 'Masuk',

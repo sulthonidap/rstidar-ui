@@ -19,6 +19,9 @@ export interface RecapRow {
   in_progress: number;
   /** Admin & Finance only: the API leaves it out for the other roles. */
   revenue?: number;
+  /** Program ongkir gratis: free orders (not cancelled) and their normal tariff (Admin & Finance only). */
+  free: number;
+  free_value?: number;
   avg_ready_minutes: number | null;
   avg_done_minutes: number | null;
   by_service: Record<string, number>;

@@ -2,6 +2,7 @@ import { ArrowLeftIcon, PencilIcon, WalletIcon, PrinterIcon, UserRoundPlusIcon, 
 import { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router';
 
+import OrderPrice from '@/components/OrderPrice';
 import Loader from '@/components/Loader';
 import DeliveryProof from '@/components/DeliveryProof';
 import OrderMap from '@/components/OrderMap';
@@ -163,8 +164,8 @@ export default function OrderDetailPage() {
                   label="Harga"
                   value={
                     <>
-                      {formatRupiah(order.price)}
-                      {order.service?.tiers?.length && order.distance_km != null ? (
+                      <OrderPrice order={order} />
+                      {!order.is_free && order.service?.tiers?.length && order.distance_km != null ? (
                         <span className="text-xs text-muted-foreground"> (tarif jarak)</span>
                       ) : null}
                     </>

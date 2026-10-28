@@ -61,7 +61,7 @@ export default function TrackedOrderCard({
           <dl className="divide-y">
             <Row label="RS / Instansi" value={order.organization?.name ?? '—'} />
             <Row label="Layanan" value={order.service_name ?? '—'} />
-            {showPrice && <Row label="Estimasi biaya" value={formatRupiah(order.price)} />}
+            {showPrice && <Row label="Estimasi biaya" value={order.is_free ? 'Gratis (program ongkir gratis)' : formatRupiah(order.price)} />}
             <Row label="Penerima" value={order.customer_name} />
             <Row label="Telepon" value={order.customer_phone} />
             <Row label="Tujuan" value={order.dropoff_address} />

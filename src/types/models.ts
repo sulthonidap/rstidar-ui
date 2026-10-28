@@ -142,6 +142,21 @@ export interface OrderStatusHistoryEntry {
   changed_at: string;
 }
 
+export type PatientCategory = 'umum' | 'lansia' | 'disabilitas';
+
+export const PATIENT_CATEGORY_LABELS: Record<PatientCategory, string> = {
+  umum: 'Umum',
+  lansia: 'Lansia',
+  disabilitas: 'Disabilitas',
+};
+
+/** Program ongkir gratis settings (Admin → Pengaturan). */
+export interface FreeProgram {
+  enabled: boolean;
+  /** Domicile requirement, e.g. "Kota Magelang". */
+  domicile: string;
+}
+
 export interface Order {
   id: number;
   code: string;
@@ -167,6 +182,11 @@ export interface Order {
   /** Optional patient data (internal only). */
   patient_name?: string | null;
   medical_record_no?: string | null;
+  /** Program ongkir gratis: category + domicile checked by staff; free → price 0, tariff in normal_price. */
+  patient_category?: PatientCategory;
+  domicile_checked?: boolean;
+  is_free?: boolean;
+  normal_price?: number | null;
   created_by?: number | null;
   creator?: User | null;
   price: number;
@@ -256,6 +276,8 @@ export interface TrackedOrder {
   organization: { name: string } | null;
   service_name: string | null;
   price: number;
+  /** Program ongkir gratis: the patient pays nothing. */
+  is_free?: boolean;
   customer_name: string;
   /** Masked by the API, e.g. 081*******90. */
   customer_phone: string;

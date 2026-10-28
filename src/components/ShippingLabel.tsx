@@ -161,7 +161,7 @@ export default function ShippingLabel({
             {patient ? `Pasien ${patient}` : stubOrder.customer_name}
           </p>
           <p className="truncate text-[8pt]">
-            {order.service?.name ?? '—'} · {formatRupiah(order.price)}
+            {order.service?.name ?? '—'} · {order.is_free ? 'Gratis' : formatRupiah(order.price)}
             {payment && <b> · {PAYMENT_STATUS_LABELS[payment]}</b>}
           </p>
           <p className="mt-[0.5mm] text-[6.5pt] leading-tight">Scan QR untuk melacak pesanan, atau buka {window.location.host}/lacak</p>
