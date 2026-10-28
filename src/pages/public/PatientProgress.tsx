@@ -29,7 +29,7 @@ const STEP_OF: Record<Exclude<HistoryStatus, 'cancelled'>, number> = {
 };
 
 /** One-line explanation of the current step, in the patient's words. */
-const DETAIL: Partial<Record<HistoryStatus, string>> = {
+export const DETAIL: Partial<Record<HistoryStatus, string>> = {
   pending: 'Pesanan sedang dicek petugas rumah sakit.',
   confirmed: 'Pesanan sudah dicek, farmasi sedang menyiapkan obat.',
   ready_for_pickup: 'Obat sudah siap di farmasi dan segera dikemas petugas.',

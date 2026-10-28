@@ -69,7 +69,7 @@ export default function TrackOrderPage() {
           </AlertDescription>
         </Alert>
       )}
-      {order && <TrackedOrderCard order={order} />}
+      {order && <TrackedOrderCard order={order} compactUntilSent />}
     </div>
   );
 }

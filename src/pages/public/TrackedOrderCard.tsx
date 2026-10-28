@@ -3,6 +3,7 @@ import PaymentPanel from '@/components/PaymentPanel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDateTime, formatRupiah } from '@/lib/format';
 import { formatSchedule } from '@/lib/schedule';
+import PackingNotice from '@/pages/public/PackingNotice';
 import PatientProgress from '@/pages/public/PatientProgress';
 import type { TrackedOrder } from '@/types/models';
 
@@ -20,12 +21,35 @@ export default function TrackedOrderCard({
   order,
   showPrice,
   title,
+  compactUntilSent,
 }: {
   order: TrackedOrder;
   showPrice?: boolean;
   /** Card heading instead of the order code (when the page already shows the code). */
   title?: string;
+  /** Tracking page: until the courier takes the package, show only a "being prepared" notice. */
+  compactUntilSent?: boolean;
 }) {
+  // Until the courier takes the package, only a "being prepared" notice (+ payment, still needed).
+  const sent = order.status === 'on_delivery' || order.status === 'done' || order.status === 'cancelled';
+  if (compactUntilSent && !sent) {
+    return (
+      <div className="space-y-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className={title ? 'text-lg' : 'font-mono text-lg tracking-wide'}>
+              {title ?? order.code}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PackingNotice order={order} />
+          </CardContent>
+        </Card>
+        <PaymentPanel order={order} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <Card>
