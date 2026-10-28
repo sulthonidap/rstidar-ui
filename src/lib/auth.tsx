@@ -2,14 +2,14 @@ import { isAxiosError } from 'axios';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { api, apiErrorMessage, clearToken, getToken, setToken } from './api';
+import { TOKEN_STORAGE_KEY, api, apiErrorMessage, clearToken, getToken, setToken } from './api';
 import { markExpiredOnStart, setLoggedOut } from './session';
 import type { User } from '../types/models';
 
 interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string, remember: boolean) => Promise<User>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => void;
 }
 
@@ -44,14 +44,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loadMe();
   }, [loadMe]);
 
-  const login = useCallback(async (email: string, password: string, remember: boolean) => {
+  // Another tab logged out (token removed) or logged in, maybe as someone else
+  // (token replaced): follow it, so every tab shows the same account.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== TOKEN_STORAGE_KEY && e.key !== null) return;
+      if (!getToken()) {
+        setLoggedOut(true);
+        setUser(null);
+        return;
+      }
+      setLoggedOut(false);
+      void loadMe();
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [loadMe]);
+
+  const login = useCallback(async (email: string, password: string) => {
     try {
-      const { data } = await api.post<{ token: string; user: User }>('/auth/login', {
-        email,
-        password,
-        remember,
-      });
-      setToken(data.token, remember);
+      const { data } = await api.post<{ token: string; user: User }>('/auth/login', { email, password });
+      setToken(data.token);
       setLoggedOut(false);
       setUser(data.user);
       return data.user;

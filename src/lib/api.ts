@@ -5,16 +5,18 @@ import { loginUrl } from './session';
 export const TOKEN_STORAGE_KEY = 'medsend_token';
 
 /**
- * "Ingat aku" keeps the token in localStorage (survives closing the browser);
- * otherwise it lives in sessionStorage and is gone when the browser closes.
+ * The token lives in localStorage: every tab shares the session and it survives
+ * closing the browser, until the token expires (24 h). AuthProvider mirrors a
+ * login/logout in one tab to the others.
+ * (sessionStorage is still read once: tabs logged in before this change.)
  */
 export function getToken(): string | null {
-  return sessionStorage.getItem(TOKEN_STORAGE_KEY) ?? localStorage.getItem(TOKEN_STORAGE_KEY);
+  return localStorage.getItem(TOKEN_STORAGE_KEY) ?? sessionStorage.getItem(TOKEN_STORAGE_KEY);
 }
 
-export function setToken(token: string, remember: boolean) {
+export function setToken(token: string) {
   clearToken();
-  (remember ? localStorage : sessionStorage).setItem(TOKEN_STORAGE_KEY, token);
+  localStorage.setItem(TOKEN_STORAGE_KEY, token);
 }
 
 export function clearToken() {

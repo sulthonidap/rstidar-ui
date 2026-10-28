@@ -46,7 +46,7 @@ export default function CreateAdminPage({ license }: { license: LicenseInfo | nu
     setError(null);
     try {
       await setupAdmin.mutateAsync({ name: values.name, email: values.email, password: values.password });
-      await login(values.email, values.password, false);
+      await login(values.email, values.password);
       navigate('/', { replace: true });
     } catch (err) {
       // Login throws a plain Error with the API's message; the setup call an axios error.

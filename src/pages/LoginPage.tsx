@@ -11,13 +11,12 @@ import {
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router';
 import { z } from 'zod';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useSetupStatus } from '@/features/setup/queries';
@@ -28,7 +27,6 @@ import { nextPath } from '@/lib/session';
 const schema = z.object({
   email: z.string().min(1, 'Email wajib diisi').email('Format email tidak valid'),
   password: z.string().min(1, 'Password wajib diisi'),
-  remember: z.boolean(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -90,12 +88,11 @@ export default function LoginPage() {
 
   const {
     register,
-    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email: '', password: '', remember: false },
+    defaultValues: { email: '', password: '' },
   });
 
   if (!isLoading && user) {
@@ -105,7 +102,7 @@ export default function LoginPage() {
   const onSubmit = async (values: FormValues) => {
     setServerError(null);
     try {
-      const loggedIn = await login(values.email, values.password, values.remember);
+      const loggedIn = await login(values.email, values.password);
       // A page this role can't open (e.g. a link left by another account) goes to the Dashboard.
       navigate(canVisit(loggedIn, next) ? next : '/', { replace: true });
     } catch (err) {
@@ -229,23 +226,6 @@ export default function LoginPage() {
               </div>
               {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
             </div>
-
-            <Controller
-              control={control}
-              name="remember"
-              render={({ field }) => (
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="remember"
-                    checked={field.value}
-                    onCheckedChange={(checked) => field.onChange(checked === true)}
-                  />
-                  <Label htmlFor="remember" className="cursor-pointer font-normal">
-                    Ingat aku
-                  </Label>
-                </div>
-              )}
-            />
 
             <Button type="submit" className="h-11 w-full text-base" disabled={isSubmitting}>
               {isSubmitting ? (
