@@ -32,7 +32,8 @@ const schema = z.object({
     .string()
     .trim()
     .max(30, 'Maksimal 30 karakter')
-    .regex(/^[0-9+\-\s()]{6,}$/, 'Nomor HP tidak valid, contoh 081234567890'),
+    // "*" = the masked number the panel shows, sent back unchanged (the API restores it).
+    .regex(/^[0-9+\-\s()*]{6,}$/, 'Nomor HP tidak valid, contoh 081234567890'),
   address: z.string().trim().min(1, 'Alamat wajib diisi').max(1000, 'Maksimal 1000 karakter'),
   notes: z.string().max(1000, 'Maksimal 1000 karakter').optional(),
 });

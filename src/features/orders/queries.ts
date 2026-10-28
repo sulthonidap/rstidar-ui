@@ -61,6 +61,24 @@ export function useOrder(id: number | string) {
   });
 }
 
+/**
+ * Full (unmasked) order data for printing shipping labels. The rest of the panel
+ * only ever gets masked patient data; labels go on the package, so they print in full.
+ * staleTime 0 + no cache: the unmasked data is fetched per print and not kept around.
+ */
+export function useLabelOrders(ids: number[], enabled: boolean) {
+  return useQuery({
+    queryKey: ['orders', 'labels', ids],
+    queryFn: async () => {
+      const { data } = await api.post<{ data: Order[] }>('/orders/labels', { ids });
+      return data.data;
+    },
+    enabled: enabled && ids.length > 0,
+    staleTime: 0,
+    gcTime: 0,
+  });
+}
+
 export function useAssignableCouriers(orderId: number | string) {
   return useQuery({
     queryKey: ['orders', orderId, 'assignable-couriers'],

@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useLabelOrders } from '@/features/orders/queries';
 import { printElement } from '@/lib/print';
 import type { Order } from '@/types/models';
 
@@ -30,7 +31,13 @@ export default function LabelPrintDialog({
     (id: number) => setReadyIds((prev) => (prev.has(id) ? prev : new Set(prev).add(id))),
     [],
   );
-  const ready = orders.every((o) => readyIds.has(o.id));
+  // The panel only has masked patient data; the label prints in full, so fetch it per print.
+  const full = useLabelOrders(
+    orders.map((o) => o.id),
+    open,
+  );
+  const labels = full.data ?? [];
+  const ready = labels.length > 0 && labels.every((o) => readyIds.has(o.id));
   const single = orders.length === 1;
 
   const print = () => {
@@ -59,8 +66,12 @@ export default function LabelPrintDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="rounded-lg bg-muted p-4">
+          {full.isLoading && <p className="p-8 text-center text-sm text-muted-foreground">Menyiapkan label…</p>}
+          {full.isError && (
+            <p className="p-8 text-center text-sm text-destructive">Gagal memuat data label. Tutup lalu coba lagi.</p>
+          )}
           <div ref={stackRef} className="label-stack flex flex-col items-center gap-4">
-            {orders.map((o) => (
+            {labels.map((o) => (
               <div key={o.id} className="label-frame shadow-md">
                 <ShippingLabel order={o} onReady={() => markReady(o.id)} />
               </div>
@@ -71,7 +82,7 @@ export default function LabelPrintDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Tutup
           </Button>
-          <Button onClick={print} disabled={!ready || orders.length === 0}>
+          <Button onClick={print} disabled={!ready || labels.length === 0}>
             <PrinterIcon />
             {single ? 'Cetak' : `Cetak ${orders.length} label`}
           </Button>
