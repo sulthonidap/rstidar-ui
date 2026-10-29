@@ -1,6 +1,7 @@
 import {
   EllipsisIcon,
   EyeIcon,
+  HandHeartIcon,
   PencilIcon,
   PrinterIcon,
   UserRoundPlusIcon,
@@ -28,6 +29,21 @@ export default function OrderRowActions({ order }: { order: Order }) {
 
   return (
     <>
+      {a.showFreeClaim && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon-sm"
+              className="bg-sky-600 text-white hover:bg-sky-700"
+              onClick={a.openFreeClaim}
+              aria-label={`Cek pengajuan gratis (${order.code})`}
+            >
+              <HandHeartIcon />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Cek pengajuan ongkir gratis</TooltipContent>
+        </Tooltip>
+      )}
       {/* The next status step sits next to the "⋯" menu, one click away. */}
       {a.quickMoves.map(({ to, label, icon: Icon, blocked }) => (
         <Tooltip key={to}>
@@ -64,6 +80,12 @@ export default function OrderRowActions({ order }: { order: Order }) {
             <DropdownMenuItem onSelect={a.openLabel}>
               <PrinterIcon />
               Cetak label
+            </DropdownMenuItem>
+          )}
+          {a.showFreeClaim && (
+            <DropdownMenuItem onSelect={a.openFreeClaim}>
+              <HandHeartIcon />
+              Cek pengajuan gratis…
             </DropdownMenuItem>
           )}
           {a.showEdit && (

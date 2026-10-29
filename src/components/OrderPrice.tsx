@@ -1,5 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { formatRupiah } from '@/lib/format';
+import { isFreeClaim } from '@/lib/free-program';
 import { PATIENT_CATEGORY_LABELS, type Order } from '@/types/models';
 
 /**
@@ -13,15 +14,15 @@ export default function OrderPrice({
 }) {
   const category = order.patient_category ? PATIENT_CATEGORY_LABELS[order.patient_category] : null;
   if (!order.is_free) {
-    // The patient claimed it on the public form; CCO hasn't checked yet (Edit order).
-    const claim = order.patient_category && order.patient_category !== 'umum' && !order.domicile_checked;
-    if (!claim) return <>{formatRupiah(order.price)}</>;
+    // The patient claimed it on the public form; CCO hasn't decided yet (FreeClaimDialog).
+    if (!isFreeClaim(order)) return <>{formatRupiah(order.price)}</>;
     return (
       <span className="inline-flex flex-col items-start gap-0.5">
         <span>{formatRupiah(order.price)}</span>
         <Badge className="bg-sky-100 text-sky-800 hover:bg-sky-100 dark:bg-sky-500/15 dark:text-sky-300">
-          Ajukan gratis · {category} · belum dicek
+          Ajukan gratis
         </Badge>
+        <span className="text-xs text-muted-foreground">{category} · belum dicek</span>
       </span>
     );
   }

@@ -37,7 +37,9 @@ function RegionSelect({
   return (
     <div className="min-w-0 space-y-1.5">
       <Label htmlFor={id}>{label}</Label>
-      <Select value={value} onValueChange={onChange} disabled={!options?.length}>
+      {/* Radix sends '' while the value isn't among the options yet (a map point in another
+          kecamatan, its list still loading): not a pick, it would clear the point's region. */}
+      <Select value={value} onValueChange={(code) => code && onChange(code)} disabled={!options?.length}>
         <SelectTrigger id={id} className="w-full" aria-invalid={invalid && !value}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>

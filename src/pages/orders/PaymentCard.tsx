@@ -49,7 +49,7 @@ export default function PaymentCard({ order }: { order: Order }) {
   const cash = txn.payment_method === 'cash';
   const approver = finance || hasRole(user, 'cco');
   const canMarkPaid = txn.payment_status === 'unpaid' && approver && order.status !== 'cancelled';
-  const canRefund = finance && txn.payment_status === 'paid';
+  const canRefund = finance && txn.payment_status === 'paid' && !order.is_free;
   // A new order is confirmed only once paid: offer both in one click.
   const canConfirm = order.status === 'pending' && canMoveOrder(user, 'pending', 'confirmed');
   const busy = action.isPending || transition.isPending;

@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { api } from '@/lib/api';
-import type { FreeProgram } from '@/types/models';
+import type { FreeProgram, Order } from '@/types/models';
 
 /** Program ongkir gratis (lansia/disabilitas): whether it's on and its domicile requirement. */
 export function useFreeProgram() {
@@ -31,6 +31,22 @@ export function useUpdateFreeProgram() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['free-program'] });
       toast.success('Program ongkir gratis disimpan');
+    },
+  });
+}
+
+export type FreeClaimAction = 'approve' | 'reject';
+
+/** CCO decides a patient's free-delivery claim: approve (free, paid Rp0) or reject (regular order). */
+export function useFreeClaim(orderId: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { action: FreeClaimAction; note?: string }) =>
+      (await api.post<{ data: Order }>(`/orders/${orderId}/free-claim`, payload)).data.data,
+    onSuccess: (_, { action }) => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      toast.success(action === 'approve' ? 'Disetujui: ongkir gratis' : 'Pengajuan gratis ditolak');
     },
   });
 }

@@ -1,4 +1,12 @@
-import { ArrowLeftIcon, PencilIcon, WalletIcon, PrinterIcon, UserRoundPlusIcon, XCircleIcon } from 'lucide-react';
+import {
+  ArrowLeftIcon,
+  HandHeartIcon,
+  PencilIcon,
+  WalletIcon,
+  PrinterIcon,
+  UserRoundPlusIcon,
+  XCircleIcon,
+} from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router';
 
@@ -16,15 +24,17 @@ import { useAuth } from '@/lib/auth';
 import { formatDateTime, formatRupiah } from '@/lib/format';
 import { hasRole } from '@/lib/roles';
 import { formatSchedule } from '@/lib/schedule';
+import { isFreeClaim } from '@/lib/free-program';
 import { PAYMENT_METHOD_LABELS, PAYMENT_OPEN_TINT } from '@/lib/payment';
 import { cn } from '@/lib/utils';
 import { orderDistanceKm } from '@/lib/geo';
 import { distanceText } from '@/components/QuoteLine';
+import { FreeClaimDialog } from '@/pages/orders/FreeClaimDialog';
 import NewOrderPaymentDialog from '@/pages/orders/NewOrderPaymentDialog';
 import PaymentCard from '@/pages/orders/PaymentCard';
 import { UNPAID_HINT, useOrderActions } from '@/pages/orders/useOrderActions';
 import type { Order } from '@/types/models';
-import { ORDER_SOURCE_LABELS } from '@/types/models';
+import { ORDER_SOURCE_LABELS, PATIENT_CATEGORY_LABELS } from '@/types/models';
 
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -57,6 +67,12 @@ function OrderDetailActions({ order }: { order: Order }) {
         <Button variant="outline" onClick={a.openLabel}>
           <PrinterIcon />
           Cetak label
+        </Button>
+      )}
+      {a.showFreeClaim && (
+        <Button className="bg-sky-600 text-white hover:bg-sky-700" onClick={a.openFreeClaim}>
+          <HandHeartIcon />
+          Cek pengajuan gratis
         </Button>
       )}
       {a.showEdit && (
@@ -96,6 +112,7 @@ export default function OrderDetailPage() {
   // so a refresh doesn't bring it back).
   const [justCreated] = useState(() => !!(location.state as { created?: boolean } | null)?.created);
   const [payOpen, setPayOpen] = useState(justCreated);
+  const [freeClaimOpen, setFreeClaimOpen] = useState(false);
   const closePay = () => {
     setPayOpen(false);
     navigate('.', { replace: true, state: null });
@@ -109,6 +126,9 @@ export default function OrderDetailPage() {
   // Not paid yet (or receipt waiting for a check): colour the payment so it stands out.
   const txn = order.transaction;
   const payTint = txn && order.status !== 'cancelled' ? PAYMENT_OPEN_TINT[txn.payment_status] : undefined;
+  // A patient's free-delivery claim still open: CCO decides it before taking the payment.
+  const freeClaim = isFreeClaim(order) && order.status !== 'done' && order.status !== 'cancelled';
+  const canDecideClaim = hasRole(user, 'admin', 'cco');
 
   return (
     <div className="space-y-4">
@@ -126,6 +146,28 @@ export default function OrderDetailPage() {
           <OrderDetailActions order={order} />
         </div>
       </div>
+
+      {freeClaim && (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-sky-300 bg-sky-50 px-4 py-3 dark:border-sky-800 dark:bg-sky-950/40">
+          <HandHeartIcon className="size-5 shrink-0 text-sky-600 dark:text-sky-400" />
+          <div className="min-w-0 flex-1 text-sm">
+            <p className="font-semibold">
+              Pasien mengajukan ongkir gratis · {PATIENT_CATEGORY_LABELS[order.patient_category ?? 'umum']}
+            </p>
+            <p className="text-muted-foreground">
+              Cek KTP pasien, lalu setujui atau tolak. Sampai diputuskan, ongkir tetap {formatRupiah(order.price)}.
+            </p>
+          </div>
+          {canDecideClaim && (
+            <>
+              <Button size="sm" className="bg-sky-600 text-white hover:bg-sky-700" onClick={() => setFreeClaimOpen(true)}>
+                Cek pengajuan
+              </Button>
+              <FreeClaimDialog order={order} open={freeClaimOpen} onOpenChange={setFreeClaimOpen} />
+            </>
+          )}
+        </div>
+      )}
 
       {txn && payTint && (
         <div className={cn('flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3', payTint)}>

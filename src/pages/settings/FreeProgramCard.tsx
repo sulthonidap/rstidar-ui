@@ -53,8 +53,8 @@ export default function FreeProgramCard() {
             <span>
               <span className="font-medium">Form pasien &amp; kiosk</span>
               <span className="block text-xs text-muted-foreground">
-                Pasien bisa mengajukan sebagai lansia/disabilitas. Gratis setelah CCO mengecek KTP dan menekan
-                "Sudah dicek, gratiskan" di Edit order.
+                Pasien bisa mengajukan sebagai lansia/disabilitas. Gratis setelah CCO mengecek KTP dan menyetujuinya
+                lewat tombol "Cek pengajuan gratis" di order.
               </span>
             </span>
           </label>

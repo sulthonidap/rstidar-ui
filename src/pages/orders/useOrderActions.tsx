@@ -7,9 +7,11 @@ import { useTransitionOrder } from '@/features/orders/queries';
 import { apiErrorMessage } from '@/lib/api';
 import { awaitingPayment, PAYMENT_GATED_STEPS } from '@/lib/payment';
 import { useAuth } from '@/lib/auth';
+import { isFreeClaim } from '@/lib/free-program';
 import { ASSIGNABLE_STATUSES, canMoveOrder, hasRole } from '@/lib/roles';
 import LabelPrintDialog from '@/pages/orders/LabelPrintDialog';
 import { EditOrderDialog } from '@/pages/orders/EditOrderDialog';
+import { FreeClaimDialog } from '@/pages/orders/FreeClaimDialog';
 import { AssignCourierDialog, CancelOrderDialog } from '@/pages/orders/OrderActionDialogs';
 import type { Order, OrderStatus } from '@/types/models';
 import { ORDER_STATUS_LABELS, ORDER_STATUS_TRANSITIONS } from '@/types/models';
@@ -49,6 +51,7 @@ export function useOrderActions(order: Order) {
   const [cancelOpen, setCancelOpen] = useState(false);
   const [labelOpen, setLabelOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [freeClaimOpen, setFreeClaimOpen] = useState(false);
 
   // Only the steps this role takes (CCO confirms, then collects + packs, Farmasi marks ready).
   // Confirming and packing wait for the payment (the API refuses them too).
@@ -63,6 +66,9 @@ export function useOrderActions(order: Order) {
   const showCancel = canMoveOrder(user, order.status, 'cancelled');
   const showPrint = order.status !== 'cancelled';
   const showEdit = hasRole(user, 'admin', 'cco') && EDITABLE_STATUSES.includes(order.status);
+  // A patient's free-delivery claim waiting for CCO (public form/kiosk).
+  const showFreeClaim =
+    hasRole(user, 'admin', 'cco') && isFreeClaim(order) && order.status !== 'done' && order.status !== 'cancelled';
 
   const moveTo = (to: OrderStatus) => {
     toast.promise(transition.mutateAsync({ status: to }), {
@@ -78,6 +84,7 @@ export function useOrderActions(order: Order) {
       {showAssign && <AssignCourierDialog order={order} open={assignOpen} onOpenChange={setAssignOpen} />}
       {showCancel && <CancelOrderDialog order={order} open={cancelOpen} onOpenChange={setCancelOpen} />}
       {showEdit && <EditOrderDialog order={order} open={editOpen} onOpenChange={setEditOpen} />}
+      {showFreeClaim && <FreeClaimDialog order={order} open={freeClaimOpen} onOpenChange={setFreeClaimOpen} />}
     </>
   );
 
@@ -87,6 +94,7 @@ export function useOrderActions(order: Order) {
     showCancel,
     showPrint,
     showEdit,
+    showFreeClaim,
     isMoving: transition.isPending,
     moveTo,
     assignLabel: order.courier_id ? 'Ganti kurir' : 'Tugaskan kurir',
@@ -94,6 +102,7 @@ export function useOrderActions(order: Order) {
     openCancel: () => setCancelOpen(true),
     openLabel: () => setLabelOpen(true),
     openEdit: () => setEditOpen(true),
+    openFreeClaim: () => setFreeClaimOpen(true),
     dialogs,
   };
 }

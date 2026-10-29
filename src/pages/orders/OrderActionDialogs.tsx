@@ -160,7 +160,8 @@ export function CancelOrderDialog({
   const [payment, setPayment] = useState<CancelPayment>('refund');
   const [error, setError] = useState<string | null>(null);
   const txn = order.transaction;
-  const paid = txn?.payment_status === 'paid';
+  // Settled at Rp0 because it's free: nothing to refund.
+  const paid = txn?.payment_status === 'paid' && !order.is_free;
   const reasonRequired = paid && payment === 'keep';
 
   const submit = async () => {

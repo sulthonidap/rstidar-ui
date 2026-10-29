@@ -205,7 +205,7 @@ export default function OrderBulkActions({
 
       <BulkCancelDialog
         count={cancellable.length}
-        paid={cancellable.filter((o) => o.transaction?.payment_status === 'paid')}
+        paid={cancellable.filter((o) => o.transaction?.payment_status === 'paid' && !o.is_free)}
         open={cancelOpen}
         onOpenChange={setCancelOpen}
         pending={bulk.isPending}
