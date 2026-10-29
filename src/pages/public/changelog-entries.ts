@@ -1,13 +1,13 @@
 /**
  * What's new in the app, newest first — shown on /changelog. Videos and their
- * poster images live in public/changelog/.
+ * poster images live in public/changelog-media/.
  */
 export interface ChangelogItem {
   kind: 'fitur' | 'perbaikan';
   title: string;
   summary?: string;
   points?: string[];
-  /** File name in public/changelog/ without extension: <name>.mp4 + <name>.jpg (poster). */
+  /** File name in public/changelog-media/ without extension: <name>.mp4 + <name>.jpg (poster). */
   video?: string;
 }
 

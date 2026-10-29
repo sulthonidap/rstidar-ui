@@ -45,8 +45,8 @@ function Item({ item }: { item: ChangelogItem }) {
             controls
             playsInline
             preload="none"
-            poster={`/changelog/${item.video}.jpg`}
-            src={`/changelog/${item.video}.mp4`}
+            poster={`/changelog-media/${item.video}.jpg`}
+            src={`/changelog-media/${item.video}.mp4`}
             className="aspect-video w-full rounded-lg border bg-black"
           />
         )}
