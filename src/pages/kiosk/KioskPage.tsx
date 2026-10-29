@@ -190,7 +190,9 @@ export default function KioskPage() {
   const [region, setRegion] = useState('');
   const placed = useTrackOrder(code);
 
-  const quote = useQuote(org ? { dropoff_lat: point?.[0], dropoff_lng: point?.[1] } : null);
+  const quote = useQuote(
+    org ? { dropoff_lat: point?.[0], dropoff_lng: point?.[1], dropoff_region_code: region || undefined } : null,
+  );
   const selected = quote.data?.services?.find((q) => String(q.service_id) === serviceId);
   const selectedQuote = quote.data && selected ? { ...quote.data, ...selected } : undefined;
 
@@ -268,7 +270,8 @@ export default function KioskPage() {
       draft.customer_name.trim() !== '' &&
       PHONE.test(draft.customer_phone.trim()) &&
       (!askPharmacy || !pharmacyError(pharmacy)),
-    location: !!region && draft.dropoff_address.trim() !== '' && !quote.data?.out_of_range,
+    location:
+      !!region && draft.dropoff_address.trim() !== '' && !quote.data?.out_of_range && !quote.data?.outside_area,
     service: !!selected,
     payment: !!payment,
   };
@@ -424,7 +427,12 @@ export default function KioskPage() {
         <Heading title="Detail Lokasi Pengiriman" subtitle="Lengkapi alamat dan tandai titik rumah di peta." />
         <div className="mx-auto grid max-w-7xl overflow-hidden rounded-3xl bg-white shadow-xl shadow-slate-200/60 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
           <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-            <RegionFields value={region} onChange={setRegion} />
+            <RegionFields
+              value={region}
+              onChange={setRegion}
+              pointRegion={quote.data?.point_region}
+              outsideArea={quote.data?.outside_area}
+            />
             <Field label="Alamat lengkap">
               <Textarea
                 rows={3}

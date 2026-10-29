@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { MapPinCheckIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { PointRegion } from '@/features/public/queries';
 import { useRegions } from '@/features/regions/queries';
 import type { Region } from '@/types/models';
 
@@ -56,19 +58,32 @@ function RegionSelect({
  * Destination kab/kota → kecamatan → kelurahan/desa, listing only the service
  * area (Pengaturan → Wilayah Layanan). `value` is the kelurahan/desa code ('' =
  * not picked yet). `currentLabel`: an edited order's saved region, shown when the
- * area no longer lists it.
+ * area no longer lists it. `pointRegion` (from the quote): the kelurahan/desa the
+ * map point lies in — it fills the fields, and the API goes by it.
  */
 export default function RegionFields({
   value,
   onChange,
   error,
   currentLabel,
+  pointRegion,
+  outsideArea,
 }: {
   value: string;
   onChange: (code: string) => void;
   error?: string | null;
   currentLabel?: string | null;
+  pointRegion?: PointRegion | null;
+  /** The map point is outside the service area (from the quote). */
+  outsideArea?: boolean;
 }) {
+  // A new point fills in its kelurahan/desa (once per point, so a pick by hand shows the mismatch note).
+  const pointCode = pointRegion?.in_area ? pointRegion.code : null;
+  useEffect(() => {
+    if (pointCode) onChange(pointCode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pointCode]);
+
   // Partial picks (kab/kota, kecamatan) until a kelurahan/desa is chosen.
   const [draft, setDraft] = useState({ province: '', city: '', district: '' });
 
@@ -138,6 +153,23 @@ export default function RegionFields({
       {savedElsewhere && (
         <p className="text-xs text-muted-foreground">
           Tersimpan: {currentLabel} (sudah di luar wilayah layanan, tetap dipakai kalau tidak diganti).
+        </p>
+      )}
+      {outsideArea && (
+        <p className="text-xs font-medium text-destructive">
+          Titik lokasi di peta di luar wilayah layanan{pointRegion ? ` (${pointRegion.label})` : ''}. Geser titik ke alamat
+          tujuan yang benar.
+        </p>
+      )}
+      {pointCode && pointCode === value && (
+        <p className="flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-400">
+          <MapPinCheckIcon className="size-3.5" />
+          Sesuai titik lokasi di peta.
+        </p>
+      )}
+      {pointCode && value && pointCode !== value && (
+        <p className="text-xs text-amber-700 dark:text-amber-400">
+          Titik di peta ada di {pointRegion?.label}. Yang dipakai titik peta, geser titiknya kalau salah.
         </p>
       )}
       {provinces.isSuccess && provinces.data.length === 0 && (

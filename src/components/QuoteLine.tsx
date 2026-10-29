@@ -2,6 +2,7 @@ import { BadgeCheckIcon, BanIcon, LoaderCircleIcon, WalletIcon } from 'lucide-re
 
 import type { Quote } from '@/features/public/queries';
 import { formatRupiah } from '@/lib/format';
+import type { DistanceSource } from '@/types/models';
 
 /** 42.3 → "42,3". */
 export function formatKm(km: number | null | undefined) {
@@ -9,9 +10,10 @@ export function formatKm(km: number | null | undefined) {
 }
 
 /** "1,2 km lewat jalan" / "± 1,2 km (perkiraan)" for a quote or an order. */
-export function distanceText(km: number | null | undefined, source: 'road' | 'estimate' | null | undefined) {
+export function distanceText(km: number | null | undefined, source: DistanceSource | null | undefined) {
   if (km == null) return null;
   const n = formatKm(km);
+  if (source === 'region') return `± ${n} km ke kelurahan/desa (tanpa titik peta)`;
   return source === 'estimate' ? `± ${n} km (perkiraan)` : `${n} km lewat jalan`;
 }
 
@@ -37,6 +39,19 @@ export default function QuoteLine({
     ) : null;
   }
   const dist = distanceText(quote.distance_km, quote.distance_source);
+  if (quote.outside_area) {
+    return (
+      <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5">
+        <BanIcon className="mt-0.5 size-4 shrink-0 text-destructive" />
+        <div className="text-sm">
+          <p className="font-medium text-destructive">Mohon maaf, titik lokasi di luar wilayah layanan kami</p>
+          <p className="text-xs text-muted-foreground">
+            {quote.point_region ? `Titik ada di ${quote.point_region.label}. ` : ''}Periksa lagi titik di peta.
+          </p>
+        </div>
+      </div>
+    );
+  }
   if (quote.out_of_range) {
     return (
       <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5">
@@ -75,9 +90,9 @@ export default function QuoteLine({
           {dist && <span className="text-muted-foreground"> · {dist}</span>}
           {loading && <LoaderCircleIcon className="ms-2 inline size-3.5 animate-spin text-muted-foreground" />}
         </p>
-        {quote.tiered && !dist && (
+        {quote.tiered && (!dist || quote.distance_source === 'region') && (
           <p className="text-xs text-muted-foreground">
-            Harga dasar. Isi titik lokasi tujuan supaya biaya dihitung sesuai jarak.
+            {dist ? 'Perkiraan dari kelurahan/desa.' : 'Harga dasar.'} Isi titik lokasi tujuan supaya biaya dihitung sesuai jarak.
           </p>
         )}
       </div>

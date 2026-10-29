@@ -99,12 +99,15 @@ export function EditOrderDialog({
   });
 
   const serviceId = Number(watch('service_id')) || 0;
+  // Orders from before wilayah layanan have none; empty = keep as is.
+  const [region, setRegion] = useState(order.dropoff_region_code ?? '');
   const quote = useQuote(
     open && serviceId
       ? {
           service_id: serviceId,
           dropoff_lat: dropoffPoint?.[0],
           dropoff_lng: dropoffPoint?.[1],
+          dropoff_region_code: region || undefined,
         }
       : null,
   );
@@ -118,13 +121,11 @@ export function EditOrderDialog({
   const [pharmacy, setPharmacy] = useState<PharmacyValue>(() => pharmacyOf(order));
   const [checkPharmacy, setCheckPharmacy] = useState(false);
   const pharmacyMissing = pharmacy.careType ? pharmacyError(pharmacy) : null;
-  // Orders from before wilayah layanan have none; empty = keep as is.
-  const [region, setRegion] = useState(order.dropoff_region_code ?? '');
   const isFree = !!program?.enabled && freeProgram.category !== 'umum' && freeProgram.domicileChecked;
   // A free order costs Rp0 whatever the tariff.
   const newPrice = quote.data ? (isFree ? 0 : quote.data.price) : undefined;
   const priceChanged = newPrice !== undefined && newPrice !== order.price;
-  const outOfRange = !!quote.data?.out_of_range;
+  const outOfRange = !!quote.data?.out_of_range || !!quote.data?.outside_area;
 
   const onSubmit = async (values: FormValues) => {
     setError(null);
@@ -224,7 +225,13 @@ export function EditOrderDialog({
               <FieldError message={errors.customer_phone?.message} />
             </div>
           </div>
-          <RegionFields value={region} onChange={setRegion} currentLabel={order.dropoff_region} />
+          <RegionFields
+            value={region}
+            onChange={setRegion}
+            currentLabel={order.dropoff_region}
+            pointRegion={quote.data?.point_region}
+            outsideArea={quote.data?.outside_area}
+          />
           <div className="space-y-1.5">
             <Label htmlFor="edit_dropoff_address">Alamat tujuan lengkap</Label>
             <Textarea id="edit_dropoff_address" rows={3} aria-invalid={!!errors.dropoff_address} {...register('dropoff_address')} />

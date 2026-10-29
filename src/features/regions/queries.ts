@@ -44,3 +44,21 @@ export function useUpdateServiceArea() {
     },
   });
 }
+
+/** A kelurahan/desa outline: rings of [lat, lng] (outer and holes). */
+export interface RegionOutline {
+  code: string;
+  name: string;
+  district: string;
+  in_area: boolean;
+  rings: [number, number][][];
+}
+
+/** Every known kelurahan/desa outline (Admin, for the service area map). */
+export function useRegionMap() {
+  return useQuery({
+    queryKey: ['region-map'],
+    staleTime: Infinity,
+    queryFn: async () => (await api.get<{ data: RegionOutline[] }>('/regions/map')).data.data,
+  });
+}

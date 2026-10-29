@@ -96,7 +96,9 @@ export default function PublicOrderFormPage() {
 
   // Live price: distance tiers × road distance RS → destination (same calculation as on save).
   // Every service is quoted at once, so each card shows its own price.
-  const quote = useQuote(org ? { dropoff_lat: dropoffPoint?.[0], dropoff_lng: dropoffPoint?.[1] } : null);
+  const quote = useQuote(
+    org ? { dropoff_lat: dropoffPoint?.[0], dropoff_lng: dropoffPoint?.[1], dropoff_region_code: region || undefined } : null,
+  );
   const selected = quote.data?.services?.find((q) => String(q.service_id) === watch('service_id'));
   const selectedQuote = quote.data && selected ? { ...quote.data, ...selected } : undefined;
   const quoteDistance = distanceText(quote.data?.distance_km, quote.data?.distance_source);
@@ -274,7 +276,13 @@ export default function PublicOrderFormPage() {
             </FormSection>
 
             <FormSection step={3} title="Alamat tujuan">
-              <RegionFields value={region} onChange={setRegion} error={checkPharmacy ? regionMissing : null} />
+              <RegionFields
+                value={region}
+                onChange={setRegion}
+                error={checkPharmacy ? regionMissing : null}
+                pointRegion={quote.data?.point_region}
+                outsideArea={quote.data?.outside_area}
+              />
               <div className="space-y-1.5">
                 <Label htmlFor="dropoff_address">Alamat lengkap</Label>
                 <Textarea
@@ -332,7 +340,7 @@ export default function PublicOrderFormPage() {
             <QuoteLine quote={selectedQuote} loading={quote.isFetching} />
             <OutOfRangeDialog quote={quote.data} rsName={org.name} />
 
-            <Button type="submit" className="h-11 w-full text-base" disabled={create.isPending || quote.data?.out_of_range}>
+            <Button type="submit" className="h-11 w-full text-base" disabled={create.isPending || quote.data?.out_of_range || quote.data?.outside_area}>
               Buat order
             </Button>
             <p className="text-center text-xs text-muted-foreground">

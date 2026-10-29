@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRegions, useServiceArea, useUpdateServiceArea } from '@/features/regions/queries';
 import { apiErrorMessage } from '@/lib/api';
+import ServiceAreaMap from '@/pages/settings/ServiceAreaMap';
 import type { Region } from '@/types/models';
 
 const inside = (code: string, parent: string) => code.startsWith(parent + '.');
@@ -145,6 +146,19 @@ export default function ServiceAreaPage() {
               </Button>
             )}
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Peta wilayah layanan</CardTitle>
+          <CardDescription>
+            Batas kelurahan/desa dipakai untuk mengecek titik lokasi pasien: titik di luar area biru ditolak, dan
+            kelurahan/desa di form terisi otomatis dari titiknya.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ServiceAreaMap codes={codes} />
         </CardContent>
       </Card>
 

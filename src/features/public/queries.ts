@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
-import type { CareType, PublicOrganization, Service, TrackedOrder, PaymentMethod } from '@/types/models';
+import type { DistanceSource, CareType, PublicOrganization, Service, TrackedOrder, PaymentMethod } from '@/types/models';
 
 /** The partner RS, for the order form header (fails until the admin has set it up). */
 export function usePublicOrganization() {
@@ -99,13 +99,22 @@ export interface QuoteParams {
   /** Only when the pickup isn't the RS point. */
   pickup_lat?: number;
   pickup_lng?: number;
+  /** Kelurahan/desa picked in the form: without a point, measured from its centre. */
+  dropoff_region_code?: string;
+}
+
+/** The kelurahan/desa a destination point lies in. */
+export interface PointRegion {
+  code: string;
+  label: string;
+  in_area: boolean;
 }
 
 export interface Quote {
   price: number;
   /** Road distance RS → destination; null without a destination point. */
   distance_km: number | null;
-  distance_source: 'road' | 'estimate' | null;
+  distance_source: DistanceSource | null;
   /** The service prices by distance (else flat). */
   tiered: boolean;
   /** Outside the RS's service area: an order would be refused, whatever the service. */
@@ -116,6 +125,10 @@ export interface Quote {
   route?: [number, number][];
   /** Price of every active service for this destination. */
   services?: { service_id: number; price: number; tiered: boolean }[];
+  /** The point's kelurahan/desa; null without a point or outside every known outline. */
+  point_region?: PointRegion | null;
+  /** The point is outside the service area: an order would be refused. */
+  outside_area?: boolean;
 }
 
 /** Price + road distance an order would get, as calculated on save. */

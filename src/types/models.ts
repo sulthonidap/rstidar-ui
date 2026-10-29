@@ -182,6 +182,9 @@ export interface Region {
   level: number;
 }
 
+/** road / estimate: to the map point; region: no point, to the kelurahan/desa centre. */
+export type DistanceSource = 'road' | 'estimate' | 'region';
+
 export interface Order {
   id: number;
   code: string;
@@ -225,7 +228,7 @@ export interface Order {
   price: number;
   /** Road distance RS → destination (km); source "road" or "estimate" (routing server unreachable). */
   distance_km?: number | null;
-  distance_source?: 'road' | 'estimate' | null;
+  distance_source?: DistanceSource | null;
   notes?: string | null;
   confirmed_at?: string | null;
   ready_at?: string | null;
