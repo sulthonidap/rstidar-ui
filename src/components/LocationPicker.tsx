@@ -3,10 +3,11 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { ExternalLinkIcon, LoaderCircleIcon, LocateFixedIcon, MapPinIcon, SearchIcon, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { MapContainer, Marker, Polyline, TileLayer, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, Marker, Polygon, Polyline, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { usePublicServiceArea, type ServiceAreaShape } from '@/features/regions/queries';
 import { apiErrorMessage } from '@/lib/api';
 import { isMapsLink, pointFromMapsLink } from '@/lib/geo';
 import type { LatLng, PlaceResult } from '@/lib/geocode';
@@ -47,6 +48,28 @@ function Frame({ target, other }: { target: LatLng | null; other: LatLng | null 
   return null;
 }
 
+// The whole world as the outer ring: the served outlines cut holes in it.
+const WORLD: LatLng[] = [[-89, -179], [-89, 179], [89, 179], [89, -179]];
+
+/** Shades what's outside the service area and keeps the map around it. */
+function AreaLimit({ area }: { area: ServiceAreaShape }) {
+  const map = useMap();
+  useEffect(() => {
+    const served = L.latLngBounds(area.bounds);
+    const limit = served.pad(0.2);
+    map.setMaxBounds(limit);
+    map.setMinZoom(Math.max(map.getBoundsZoom(limit) - 1, 3));
+    if (!limit.contains(map.getCenter())) map.fitBounds(served);
+  }, [map, area]);
+  return (
+    <Polygon
+      positions={[WORLD, ...area.rings]}
+      interactive={false}
+      pathOptions={{ stroke: false, fillColor: '#0f172a', fillOpacity: 0.28 }}
+    />
+  );
+}
+
 export interface LocationPickerProps {
   value: LatLng | null;
   onChange: (point: LatLng | null) => void;
@@ -68,6 +91,8 @@ export interface LocationPickerProps {
   mapClassName?: string;
   /** "lg": touch-sized, eye-catching search for the kiosk (big field, labelled, primary button). */
   size?: 'default' | 'lg';
+  /** Order forms: shade what's outside the service area and keep the map around it. */
+  serviceArea?: boolean;
 }
 
 /**
@@ -88,7 +113,9 @@ export default function LocationPicker({
   placeholder = 'Cari nama/alamat, tempel link Google Maps, atau koordinat -6.2253, 106.8331',
   mapClassName,
   size = 'default',
+  serviceArea = false,
 }: LocationPickerProps) {
+  const { data: area } = usePublicServiceArea(serviceArea);
   const lg = size === 'lg';
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<PlaceResult[] | null>(null);
@@ -227,6 +254,7 @@ export default function LocationPicker({
           center={value ?? reference?.point ?? JAKARTA}
           zoom={value || reference ? 15 : 11}
           scrollWheelZoom
+          maxBoundsViscosity={serviceArea ? 1 : undefined}
           className="size-full cursor-crosshair"
         >
           <TileLayer
@@ -257,6 +285,7 @@ export default function LocationPicker({
               }}
             />
           )}
+          {serviceArea && area && <AreaLimit area={area} />}
           <PlaceOnClick onPlace={(p) => set(p, false)} />
           <Frame target={focus} other={reference?.point ?? null} />
         </MapContainer>
@@ -292,7 +321,10 @@ export default function LocationPicker({
             </span>
           </>
         ) : (
-          <span>Belum ada titik (opsional). Cari lokasinya, tempel link, atau klik langsung di peta.</span>
+          <span>
+            Belum ada titik (opsional). Cari lokasinya, tempel link, atau klik langsung di peta.
+            {serviceArea && area && ' Area gelap di luar wilayah layanan.'}
+          </span>
         )}
       </div>
     </div>

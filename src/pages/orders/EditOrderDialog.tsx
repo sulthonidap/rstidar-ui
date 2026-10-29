@@ -243,6 +243,7 @@ export function EditOrderDialog({
             </Label>
             {open && (
               <LocationPicker
+                serviceArea
                 value={dropoffPoint}
                 onChange={setDropoffPoint}
                 pinLabel="Tujuan"

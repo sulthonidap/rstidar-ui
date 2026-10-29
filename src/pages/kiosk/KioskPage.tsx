@@ -455,6 +455,7 @@ export default function KioskPage() {
           </div>
           <div className="border-t bg-slate-50 p-4 lg:border-t-0 lg:border-l">
             <LocationPicker
+              serviceArea
               value={point}
               onChange={setPoint}
               pinLabel="Tujuan"

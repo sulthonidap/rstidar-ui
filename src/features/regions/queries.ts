@@ -62,3 +62,19 @@ export function useRegionMap() {
     queryFn: async () => (await api.get<{ data: RegionOutline[] }>('/regions/map')).data.data,
   });
 }
+
+/** The served area for the order forms' map: outlines (simplified) and their bounds. */
+export interface ServiceAreaShape {
+  bounds: [[number, number], [number, number]];
+  rings: [number, number][][];
+}
+
+/** null = no outlines known for the area (the map isn't limited). */
+export function usePublicServiceArea(enabled = true) {
+  return useQuery({
+    queryKey: ['public-service-area'],
+    enabled,
+    staleTime: 30 * 60_000,
+    queryFn: async () => (await api.get<{ data: ServiceAreaShape | null }>('/public/regions/area')).data.data,
+  });
+}

@@ -381,6 +381,7 @@ export default function CreateOrderPage() {
                         Titik lokasi <span className="font-normal text-muted-foreground">(opsional, untuk biaya sesuai jarak)</span>
                       </Label>
                       <LocationPicker
+                        serviceArea
                         value={dropoffPoint}
                         onChange={setDropoffPoint}
                         pinLabel="Tujuan"

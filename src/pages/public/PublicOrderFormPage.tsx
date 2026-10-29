@@ -302,6 +302,7 @@ export default function PublicOrderFormPage() {
                   Sedang di alamat tujuan? Tekan <b>Lokasi saya</b>. Bisa juga tempel link lokasi dari Google Maps/WhatsApp.
                 </p>
                 <LocationPicker
+                  serviceArea
                   value={dropoffPoint}
                   onChange={setDropoffPoint}
                   pinLabel="Tujuan"
