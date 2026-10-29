@@ -23,6 +23,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/pengaturan/rs': 'Profil RS',
   '/services': 'Tipe Layanan',
   '/pengaturan/bangsal': 'Bangsal',
+  '/pengaturan/wilayah': 'Wilayah Layanan',
   '/users': 'Kelola User',
   '/transactions': 'Laporan Transaksi',
 };

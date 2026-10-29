@@ -30,6 +30,10 @@ const PAGE_HEADINGS: Record<string, { title: string; description: string }> = {
     title: 'Tipe Layanan',
     description: 'Atur jenis layanan pengiriman dan tarifnya.',
   },
+  '/pengaturan/wilayah': {
+    title: 'Wilayah Layanan',
+    description: 'Kabupaten/kota dan kecamatan yang dilayani. Alamat di luar wilayah ini ditolak.',
+  },
   '/pengaturan/bangsal': {
     title: 'Bangsal',
     description: 'Daftar bangsal rawat inap, dipilih saat order dari farmasi rawat inap.',

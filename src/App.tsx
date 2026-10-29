@@ -21,6 +21,7 @@ import PublicOrderSuccessPage from '@/pages/public/PublicOrderSuccessPage';
 import TrackOrderPage from '@/pages/public/TrackOrderPage';
 import ServicesPage from '@/pages/services/ServicesPage';
 import WardsPage from '@/pages/settings/WardsPage';
+import ServiceAreaPage from '@/pages/settings/ServiceAreaPage';
 import TransactionsPage from '@/pages/transactions/TransactionsPage';
 import UsersPage from '@/pages/users/UsersPage';
 
@@ -65,6 +66,7 @@ export default function App() {
         <Route path="pengaturan/rs" element={<OrganizationSettingsPage />} />
         <Route path="services" element={<ServicesPage />} />
         <Route path="pengaturan/bangsal" element={<WardsPage />} />
+        <Route path="pengaturan/wilayah" element={<ServiceAreaPage />} />
         <Route path="users" element={<UsersPage />} />
         <Route path="transactions" element={<TransactionsPage />} />
       </Route>

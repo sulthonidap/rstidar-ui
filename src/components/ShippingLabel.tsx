@@ -113,6 +113,7 @@ export default function ShippingLabel({
           <p className="text-[11pt] font-bold">{order.customer_name}</p>
           <p className="font-semibold">{order.customer_phone}</p>
           <p className="mt-[0.5mm] line-clamp-2">{order.dropoff_address}</p>
+          {order.dropoff_region && <p className="line-clamp-1">{order.dropoff_region}</p>}
         </section>
 
         {/* Sender */}

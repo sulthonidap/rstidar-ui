@@ -8,6 +8,7 @@ import Loader from '@/components/Loader';
 import LocationPicker from '@/components/LocationPicker';
 import FormSection from '@/components/FormSection';
 import PaymentMethodDialog from '@/components/PaymentMethodDialog';
+import RegionFields from '@/components/RegionFields';
 import PharmacyFields, { NO_PHARMACY, pharmacyError, pharmacyPayload, type PharmacyValue } from '@/components/PharmacyFields';
 import OutOfRangeDialog from '@/components/OutOfRangeDialog';
 import QuoteLine, { distanceText } from '@/components/QuoteLine';
@@ -67,6 +68,9 @@ export default function PublicOrderFormPage() {
   const [pharmacy, setPharmacy] = useState<PharmacyValue>(NO_PHARMACY);
   const [checkPharmacy, setCheckPharmacy] = useState(false);
   const pharmacyMissing = pharmacySetup?.enabled ? pharmacyError(pharmacy) : null;
+  // Kelurahan/desa tujuan: required, inside the service area.
+  const [region, setRegion] = useState('');
+  const regionMissing = region ? null : 'Pilih kelurahan/desa tujuan';
 
   const {
     register,
@@ -122,11 +126,12 @@ export default function PublicOrderFormPage() {
     setValue('patient_name', p.patient_name ?? '', opts);
     setValue('medical_record_no', p.medical_record_no ?? '', opts);
     if (p.dropoff_lat != null && p.dropoff_lng != null) setDropoffPoint([p.dropoff_lat, p.dropoff_lng]);
+    if (p.dropoff_region_code) setRegion(p.dropoff_region_code);
   };
 
   const onSubmit = (values: FormValues) => {
     setCheckPharmacy(true);
-    if (pharmacyMissing) return;
+    if (pharmacyMissing || regionMissing) return;
     create.reset();
     setDraft(values);
   };
@@ -144,6 +149,7 @@ export default function PublicOrderFormPage() {
         dropoff_lat: dropoffPoint?.[0],
         dropoff_lng: dropoffPoint?.[1],
         ...(pharmacySetup?.enabled ? pharmacyPayload(pharmacy) : {}),
+        dropoff_region_code: region,
       });
       navigate(`/order/${encodeURIComponent(code)}/selesai`, { replace: true });
     } catch {
@@ -163,7 +169,7 @@ export default function PublicOrderFormPage() {
 
       <Card>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+          <form onSubmit={handleSubmit(onSubmit, () => setCheckPharmacy(true))} className="space-y-5" noValidate>
             {services?.length === 0 && (
               <Alert>
                 <AlertDescription>
@@ -268,12 +274,13 @@ export default function PublicOrderFormPage() {
             </FormSection>
 
             <FormSection step={3} title="Alamat tujuan">
+              <RegionFields value={region} onChange={setRegion} error={checkPharmacy ? regionMissing : null} />
               <div className="space-y-1.5">
                 <Label htmlFor="dropoff_address">Alamat lengkap</Label>
                 <Textarea
                   id="dropoff_address"
                   rows={3}
-                  placeholder="Nama jalan, nomor, RT/RW, kelurahan, kecamatan, kota"
+                  placeholder="Nama jalan, nomor, RT/RW, patokan"
                   aria-invalid={!!errors.dropoff_address}
                   {...register('dropoff_address')}
                 />

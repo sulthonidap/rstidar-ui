@@ -182,6 +182,8 @@ export interface CreateOrderPayload {
   care_type?: CareType;
   pharmacy_queue_no?: string | null;
   ward_id?: number | null;
+  /** Kelurahan/desa tujuan (required on create; on edit, absent = keep). */
+  dropoff_region_code?: string;
   /** "YYYY-MM-DD" + slot; leave out for secepatnya. */
   scheduled_date?: string;
   scheduled_slot?: ScheduleSlot;
@@ -223,6 +225,8 @@ export interface UpdateOrderPayload {
   care_type?: CareType;
   pharmacy_queue_no?: string | null;
   ward_id?: number | null;
+  /** Kelurahan/desa tujuan (required on create; on edit, absent = keep). */
+  dropoff_region_code?: string;
   /** Empty/absent = secepatnya. */
   scheduled_date?: string;
   scheduled_slot?: ScheduleSlot;

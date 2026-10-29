@@ -178,6 +178,11 @@ export default function OrdersListPage() {
           <div>
             <div className="font-medium">{info.getValue()}</div>
             <div className="text-xs text-muted-foreground">{info.row.original.customer_phone}</div>
+            {info.row.original.dropoff_region && (
+              <div className="max-w-56 truncate text-xs text-muted-foreground" title={info.row.original.dropoff_region}>
+                {info.row.original.dropoff_region}
+              </div>
+            )}
           </div>
         ),
       }),

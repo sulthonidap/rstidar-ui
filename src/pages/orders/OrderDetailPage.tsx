@@ -215,7 +215,15 @@ export default function OrderDetailPage() {
               <Field label="Pickup" value={order.pickup_address} />
               {order.notes && <Field label="Catatan" value={order.notes} />}
               <div className="col-span-2">
-                <Field label="Tujuan" value={order.dropoff_address} />
+                <Field
+                  label="Tujuan"
+                  value={
+                    <>
+                      {order.dropoff_address}
+                      {order.dropoff_region && <span className="block text-muted-foreground">{order.dropoff_region}</span>}
+                    </>
+                  }
+                />
               </div>
             </dl>
             <OrderMap order={order} editable={canFixMap} fill />

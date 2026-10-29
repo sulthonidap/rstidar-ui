@@ -172,6 +172,16 @@ export interface Ward {
   is_active: boolean;
 }
 
+/**
+ * Wilayah (kode Kemendagri): level 1 provinsi "33", 2 kab/kota "33.71",
+ * 3 kecamatan "33.71.01", 4 kelurahan/desa "33.71.01.1001".
+ */
+export interface Region {
+  code: string;
+  name: string;
+  level: number;
+}
+
 export interface Order {
   id: number;
   code: string;
@@ -181,6 +191,9 @@ export interface Order {
   customer_phone: string;
   pickup_address: string;
   dropoff_address: string;
+  /** Kelurahan/desa tujuan and its label, e.g. "Kel. Tidar Utara, Kec. Magelang Selatan, Kota Magelang". */
+  dropoff_region_code?: string | null;
+  dropoff_region?: string | null;
   pickup_lat?: number | null;
   pickup_lng?: number | null;
   dropoff_lat?: number | null;
@@ -340,6 +353,8 @@ export interface Customer {
   name: string;
   phone: string;
   address: string;
+  /** Kelurahan/desa of the address, if known. */
+  region_code?: string | null;
   /** Map point of the address, if known. */
   lat?: number | null;
   lng?: number | null;

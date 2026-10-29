@@ -17,6 +17,7 @@ import OutOfRangeDialog from '@/components/OutOfRangeDialog';
 import PaymentChoice from '@/components/PaymentChoice';
 import PaymentPanel from '@/components/PaymentPanel';
 import QuoteLine, { distanceText } from '@/components/QuoteLine';
+import RegionFields from '@/components/RegionFields';
 import PharmacyFields, { NO_PHARMACY, pharmacyError, pharmacyPayload, type PharmacyValue } from '@/components/PharmacyFields';
 import ServiceChoice from '@/components/ServiceChoice';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -185,6 +186,8 @@ export default function KioskPage() {
   const { data: pharmacySetup } = usePublicPharmacy();
   const [pharmacy, setPharmacy] = useState<PharmacyValue>(NO_PHARMACY);
   const askPharmacy = !!pharmacySetup?.enabled;
+  // Kelurahan/desa tujuan: required, inside the service area.
+  const [region, setRegion] = useState('');
   const placed = useTrackOrder(code);
 
   const quote = useQuote(org ? { dropoff_lat: point?.[0], dropoff_lng: point?.[1] } : null);
@@ -203,6 +206,7 @@ export default function KioskPage() {
     setQuery('');
     setCode('');
     setPharmacy(NO_PHARMACY);
+    setRegion('');
     create.reset();
     lookup.reset();
   };
@@ -217,6 +221,7 @@ export default function KioskPage() {
       notes: '',
     });
     if (p.dropoff_lat != null && p.dropoff_lng != null) setPoint([p.dropoff_lat, p.dropoff_lng]);
+    setRegion(p.dropoff_region_code ?? '');
     setStep('patient');
   };
 
@@ -244,6 +249,7 @@ export default function KioskPage() {
         dropoff_lng: point?.[1],
         payment_method: payment,
         ...(askPharmacy ? pharmacyPayload(pharmacy) : {}),
+        dropoff_region_code: region,
         website: '',
       });
       setCode(res.code);
@@ -262,7 +268,7 @@ export default function KioskPage() {
       draft.customer_name.trim() !== '' &&
       PHONE.test(draft.customer_phone.trim()) &&
       (!askPharmacy || !pharmacyError(pharmacy)),
-    location: draft.dropoff_address.trim() !== '' && !quote.data?.out_of_range,
+    location: !!region && draft.dropoff_address.trim() !== '' && !quote.data?.out_of_range,
     service: !!selected,
     payment: !!payment,
   };
@@ -418,11 +424,12 @@ export default function KioskPage() {
         <Heading title="Detail Lokasi Pengiriman" subtitle="Lengkapi alamat dan tandai titik rumah di peta." />
         <div className="mx-auto grid max-w-7xl overflow-hidden rounded-3xl bg-white shadow-xl shadow-slate-200/60 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
           <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+            <RegionFields value={region} onChange={setRegion} />
             <Field label="Alamat lengkap">
               <Textarea
                 rows={3}
                 className="rounded-xl text-lg md:text-lg"
-                placeholder="Nama jalan, nomor, RT/RW, kelurahan, kecamatan"
+                placeholder="Nama jalan, nomor, RT/RW"
                 value={draft.dropoff_address}
                 onChange={set('dropoff_address')}
               />

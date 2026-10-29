@@ -23,6 +23,7 @@ import type { ScheduleValue } from '@/components/SchedulePicker';
 import SchedulePicker from '@/components/SchedulePicker';
 import LocationPicker from '@/components/LocationPicker';
 import FormSection from '@/components/FormSection';
+import RegionFields from '@/components/RegionFields';
 import PharmacyFields, { NO_PHARMACY, pharmacyError, pharmacyPayload, type PharmacyValue } from '@/components/PharmacyFields';
 import FreeProgramFields, { NO_FREE_PROGRAM, type FreeProgramValue } from '@/components/FreeProgramFields';
 import { useFreeProgram } from '@/features/free-program/queries';
@@ -88,6 +89,9 @@ export default function CreateOrderPage() {
   // Shown once the staff tried to submit.
   const [checkPharmacy, setCheckPharmacy] = useState(false);
   const pharmacyMissing = pharmacyError(pharmacy);
+  // Kelurahan/desa tujuan (inside the service area).
+  const [region, setRegion] = useState('');
+  const regionMissing = region ? null : 'Pilih kelurahan/desa tujuan';
 
   const {
     register,
@@ -120,6 +124,7 @@ export default function CreateOrderPage() {
     setValue('customer_phone', customer?.phone ?? '', opts);
     setValue('dropoff_address', customer?.address ?? '', opts);
     setDropoffPoint(customer?.lat != null && customer?.lng != null ? [customer.lat, customer.lng] : null);
+    setRegion(customer?.region_code ?? '');
     if (!customer) clearErrors(['customer_name', 'customer_phone', 'dropoff_address']);
   };
 
@@ -150,7 +155,7 @@ export default function CreateOrderPage() {
 
   const onSubmit = (values: FormValues) => {
     setCheckPharmacy(true);
-    if (pharmacyMissing) return;
+    if (pharmacyMissing || (showCustomerFields && regionMissing)) return;
     if (mode === 'existing' && !picked) {
       setPickError('Pilih customer dari daftar, atau pakai "Customer baru".');
       return;
@@ -186,6 +191,7 @@ export default function CreateOrderPage() {
         patient_category: freeProgram.category,
         domicile_checked: freeProgram.domicileChecked,
         ...pharmacyPayload(pharmacy),
+        dropoff_region_code: region,
       });
       navigate(`/orders/${order.id}`, { replace: true, state: { created: true } });
     } catch {
@@ -347,12 +353,18 @@ export default function CreateOrderPage() {
               <FormSection step={2} title="Alamat tujuan">
                 {showCustomerFields ? (
                   <>
+                    <RegionFields
+                      key={picked?.id ?? 'new'}
+                      value={region}
+                      onChange={setRegion}
+                      error={checkPharmacy ? regionMissing : null}
+                    />
                     <div className="space-y-1.5">
                       <Label htmlFor="dropoff_address">Alamat lengkap</Label>
                       <Textarea
                         id="dropoff_address"
                         rows={3}
-                        placeholder="Nama jalan, nomor, RT/RW, kelurahan, kecamatan, kota"
+                        placeholder="Nama jalan, nomor, RT/RW, patokan"
                         aria-invalid={!!errors.dropoff_address}
                         {...register('dropoff_address')}
                       />

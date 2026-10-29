@@ -25,6 +25,7 @@ import { apiErrorMessage } from '@/lib/api';
 import { formatRupiah } from '@/lib/format';
 import type { LatLng } from '@/lib/geocode';
 import LocationPicker from '@/components/LocationPicker';
+import RegionFields from '@/components/RegionFields';
 import PharmacyFields, { pharmacyError, pharmacyOf, pharmacyPayload, type PharmacyValue } from '@/components/PharmacyFields';
 import FreeProgramFields, { type FreeProgramValue } from '@/components/FreeProgramFields';
 import { useFreeProgram } from '@/features/free-program/queries';
@@ -117,6 +118,8 @@ export function EditOrderDialog({
   const [pharmacy, setPharmacy] = useState<PharmacyValue>(() => pharmacyOf(order));
   const [checkPharmacy, setCheckPharmacy] = useState(false);
   const pharmacyMissing = pharmacy.careType ? pharmacyError(pharmacy) : null;
+  // Orders from before wilayah layanan have none; empty = keep as is.
+  const [region, setRegion] = useState(order.dropoff_region_code ?? '');
   const isFree = !!program?.enabled && freeProgram.category !== 'umum' && freeProgram.domicileChecked;
   // A free order costs Rp0 whatever the tariff.
   const newPrice = quote.data ? (isFree ? 0 : quote.data.price) : undefined;
@@ -141,6 +144,7 @@ export function EditOrderDialog({
         patient_category: freeProgram.category,
         domicile_checked: freeProgram.domicileChecked,
         ...pharmacyPayload(pharmacy),
+        dropoff_region_code: region || undefined,
       });
       onOpenChange(false);
     } catch (err) {
@@ -220,6 +224,7 @@ export function EditOrderDialog({
               <FieldError message={errors.customer_phone?.message} />
             </div>
           </div>
+          <RegionFields value={region} onChange={setRegion} currentLabel={order.dropoff_region} />
           <div className="space-y-1.5">
             <Label htmlFor="edit_dropoff_address">Alamat tujuan lengkap</Label>
             <Textarea id="edit_dropoff_address" rows={3} aria-invalid={!!errors.dropoff_address} {...register('dropoff_address')} />

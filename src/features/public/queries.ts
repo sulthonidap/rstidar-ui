@@ -56,6 +56,8 @@ export interface PublicOrderPayload {
   care_type?: CareType;
   pharmacy_queue_no?: string | null;
   ward_id?: number | null;
+  /** Kelurahan/desa tujuan, inside the service area. */
+  dropoff_region_code: string;
   /** Honeypot — must stay empty; bots that fill it get rejected. */
   website: string;
 }
@@ -69,6 +71,7 @@ export interface ReturningPatient {
   dropoff_address: string;
   dropoff_lat: number | null;
   dropoff_lng: number | null;
+  dropoff_region_code: string | null;
 }
 
 /** "Pasien lama": look up the latest order by phone number or medical record number. */
