@@ -15,6 +15,7 @@ import CreateOrderPage from '@/pages/orders/CreateOrderPage';
 import OrderDetailPage from '@/pages/orders/OrderDetailPage';
 import OrdersListPage from '@/pages/orders/OrdersListPage';
 import OrganizationSettingsPage from '@/pages/settings/OrganizationSettingsPage';
+import ChangelogPage from '@/pages/public/ChangelogPage';
 import PublicLayout from '@/pages/public/PublicLayout';
 import PublicOrderFormPage from '@/pages/public/PublicOrderFormPage';
 import PublicOrderSuccessPage from '@/pages/public/PublicOrderSuccessPage';
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="/order" element={<PublicOrderFormPage />} />
         <Route path="/order/:code/selesai" element={<PublicOrderSuccessPage />} />
         <Route path="/lacak/:code?" element={<TrackOrderPage />} />
+        <Route path="/changelog" element={<ChangelogPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
 

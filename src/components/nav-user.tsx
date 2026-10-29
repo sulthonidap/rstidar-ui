@@ -1,4 +1,4 @@
-import { EllipsisVerticalIcon, LogOutIcon } from 'lucide-react';
+import { EllipsisVerticalIcon, LogOutIcon, SparklesIcon } from 'lucide-react';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -63,6 +63,12 @@ export function NavUser() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <a href="/changelog" target="_blank" rel="noreferrer">
+                <SparklesIcon />
+                Catatan pembaruan
+              </a>
+            </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onClick={logout}>
               <LogOutIcon />
               Keluar
