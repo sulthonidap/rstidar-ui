@@ -121,7 +121,7 @@ export function EditOrderDialog({
   const [pharmacy, setPharmacy] = useState<PharmacyValue>(() => pharmacyOf(order));
   const [checkPharmacy, setCheckPharmacy] = useState(false);
   const pharmacyMissing = pharmacy.careType ? pharmacyError(pharmacy) : null;
-  const isFree = !!program?.enabled && freeProgram.category !== 'umum' && freeProgram.domicileChecked;
+  const isFree = !!(program?.enabled || program?.public) && freeProgram.category !== 'umum' && freeProgram.domicileChecked;
   // A free order costs Rp0 whatever the tariff.
   const newPrice = quote.data ? (isFree ? 0 : quote.data.price) : undefined;
   const priceChanged = newPrice !== undefined && newPrice !== order.price;
@@ -277,7 +277,7 @@ export function EditOrderDialog({
             error={checkPharmacy ? pharmacyMissing : null}
             currentWard={order.ward}
           />
-          <FreeProgramFields value={freeProgram} onChange={setFreeProgram} price={quote.data?.price} />
+          <FreeProgramFields value={freeProgram} onChange={setFreeProgram} price={quote.data?.price} verify />
           <div className="space-y-1.5">
             <Label>Jadwal kirim</Label>
             <SchedulePicker value={schedule} onChange={setSchedule} />

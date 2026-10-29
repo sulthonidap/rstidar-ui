@@ -152,7 +152,10 @@ export const PATIENT_CATEGORY_LABELS: Record<PatientCategory, string> = {
 
 /** Program ongkir gratis settings (Admin → Pengaturan). */
 export interface FreeProgram {
+  /** On the staff order forms. */
   enabled: boolean;
+  /** On the public form & kiosk: the patient's pick is a claim CCO verifies by Edit. */
+  public: boolean;
   /** Domicile requirement, e.g. "Kota Magelang". */
   domicile: string;
 }

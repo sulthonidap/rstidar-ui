@@ -19,6 +19,7 @@ import PaymentPanel from '@/components/PaymentPanel';
 import QuoteLine, { distanceText } from '@/components/QuoteLine';
 import RegionFields from '@/components/RegionFields';
 import PharmacyFields, { NO_PHARMACY, pharmacyError, pharmacyPayload, type PharmacyValue } from '@/components/PharmacyFields';
+import PublicFreeProgramFields from '@/components/PublicFreeProgramFields';
 import ServiceChoice from '@/components/ServiceChoice';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ import {
   useReturningPatient,
   useTrackOrder,
 } from '@/features/public/queries';
+import { usePublicFreeProgram } from '@/features/free-program/queries';
 import { usePublicPharmacy } from '@/features/wards/queries';
 import { apiErrorMessage } from '@/lib/api';
 import { formatRupiah } from '@/lib/format';
@@ -41,7 +43,7 @@ import type { LatLng } from '@/lib/geocode';
 import { cn } from '@/lib/utils';
 import KioskKeyboard from '@/pages/kiosk/KioskKeyboard';
 import KioskCountdown from '@/pages/public/KioskCountdown';
-import type { PaymentMethod } from '@/types/models';
+import type { PatientCategory, PaymentMethod } from '@/types/models';
 
 type Step = 'welcome' | 'lookup' | 'patient' | 'location' | 'service' | 'payment' | 'done';
 
@@ -186,6 +188,9 @@ export default function KioskPage() {
   const { data: pharmacySetup } = usePublicPharmacy();
   const [pharmacy, setPharmacy] = useState<PharmacyValue>(NO_PHARMACY);
   const askPharmacy = !!pharmacySetup?.enabled;
+  // Program ongkir gratis: the patient's claim, while the Admin turned it on.
+  const { data: freeSetup } = usePublicFreeProgram();
+  const [category, setCategory] = useState<PatientCategory>('umum');
   // Kelurahan/desa tujuan: required, inside the service area.
   const [region, setRegion] = useState('');
   const placed = useTrackOrder(code);
@@ -208,6 +213,7 @@ export default function KioskPage() {
     setQuery('');
     setCode('');
     setPharmacy(NO_PHARMACY);
+    setCategory('umum');
     setRegion('');
     create.reset();
     lookup.reset();
@@ -252,6 +258,7 @@ export default function KioskPage() {
         payment_method: payment,
         ...(askPharmacy ? pharmacyPayload(pharmacy) : {}),
         dropoff_region_code: region,
+        patient_category: freeSetup?.enabled ? category : undefined,
         website: '',
       });
       setCode(res.code);
@@ -415,6 +422,9 @@ export default function KioskPage() {
             <div className="text-lg">
               <PharmacyFields value={pharmacy} onChange={setPharmacy} wards={pharmacySetup?.wards} />
             </div>
+          )}
+          {freeSetup?.enabled && (
+            <PublicFreeProgramFields value={category} onChange={setCategory} domicile={freeSetup.domicile} large />
           )}
           <KioskKeyboard />
         </Panel>

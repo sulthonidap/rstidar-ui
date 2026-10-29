@@ -15,7 +15,7 @@ export default function FreeProgramCard() {
   const { data } = useFreeProgram();
   const update = useUpdateFreeProgram();
   const [edits, setEdits] = useState<Partial<FreeProgram>>({});
-  const value: FreeProgram = { enabled: false, domicile: 'Kota Magelang', ...data, ...edits };
+  const value: FreeProgram = { enabled: false, public: false, domicile: 'Kota Magelang', ...data, ...edits };
   const dirty = Object.keys(edits).length > 0;
 
   const save = () =>
@@ -28,8 +28,8 @@ export default function FreeProgramCard() {
       <CardHeader>
         <CardTitle className="text-base">Program ongkir gratis</CardTitle>
         <CardDescription>
-          Pasien lansia/disabilitas yang domisilinya sudah dicek petugas (KTP) tidak membayar ongkir. Petugas memilih
-          kategori pasien di form order; pasien tidak bisa memilih sendiri.
+          Pasien lansia/disabilitas yang domisilinya sudah dicek petugas (KTP) tidak membayar ongkir. Bisa dinyalakan
+          terpisah untuk form petugas dan form pasien.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -38,10 +38,27 @@ export default function FreeProgramCard() {
             <AlertDescription>{apiErrorMessage(update.error, 'Gagal menyimpan')}</AlertDescription>
           </Alert>
         )}
-        <label className="flex items-center gap-3 text-sm">
-          <Switch checked={value.enabled} onCheckedChange={(v) => setEdits((e) => ({ ...e, enabled: v }))} />
-          {value.enabled ? 'Aktif — muncul di form order petugas' : 'Nonaktif'}
-        </label>
+        <div className="space-y-3">
+          <label className="flex items-start gap-3 text-sm">
+            <Switch checked={value.enabled} onCheckedChange={(v) => setEdits((e) => ({ ...e, enabled: v }))} />
+            <span>
+              <span className="font-medium">Form petugas</span> (Buat order)
+              <span className="block text-xs text-muted-foreground">
+                Petugas mengecek KTP lalu memilih kategori pasien — ongkir langsung gratis.
+              </span>
+            </span>
+          </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Switch checked={value.public} onCheckedChange={(v) => setEdits((e) => ({ ...e, public: v }))} />
+            <span>
+              <span className="font-medium">Form pasien &amp; kiosk</span>
+              <span className="block text-xs text-muted-foreground">
+                Pasien bisa mengajukan sebagai lansia/disabilitas. Gratis setelah CCO mengecek KTP dan menekan
+                "Sudah dicek, gratiskan" di Edit order.
+              </span>
+            </span>
+          </label>
+        </div>
         <div className="max-w-sm space-y-1.5">
           <Label htmlFor="free_domicile">Syarat domisili</Label>
           <Input

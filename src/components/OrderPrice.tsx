@@ -9,10 +9,22 @@ import { PATIENT_CATEGORY_LABELS, type Order } from '@/types/models';
 export default function OrderPrice({
   order,
 }: {
-  order: Pick<Order, 'price' | 'is_free' | 'normal_price' | 'patient_category'>;
+  order: Pick<Order, 'price' | 'is_free' | 'normal_price' | 'patient_category' | 'domicile_checked'>;
 }) {
-  if (!order.is_free) return <>{formatRupiah(order.price)}</>;
   const category = order.patient_category ? PATIENT_CATEGORY_LABELS[order.patient_category] : null;
+  if (!order.is_free) {
+    // The patient claimed it on the public form; CCO hasn't checked yet (Edit order).
+    const claim = order.patient_category && order.patient_category !== 'umum' && !order.domicile_checked;
+    if (!claim) return <>{formatRupiah(order.price)}</>;
+    return (
+      <span className="inline-flex flex-col items-start gap-0.5">
+        <span>{formatRupiah(order.price)}</span>
+        <Badge className="bg-sky-100 text-sky-800 hover:bg-sky-100 dark:bg-sky-500/15 dark:text-sky-300">
+          Ajukan gratis · {category} · belum dicek
+        </Badge>
+      </span>
+    );
+  }
   return (
     <span className="inline-flex flex-col items-start gap-0.5">
       <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:text-emerald-300">

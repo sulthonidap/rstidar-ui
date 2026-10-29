@@ -13,6 +13,16 @@ export function useFreeProgram() {
   });
 }
 
+/** Whether the public form & kiosk ask for the patient category (a claim), and the domicile requirement. */
+export function usePublicFreeProgram() {
+  return useQuery({
+    queryKey: ['public-free-program'],
+    queryFn: async () =>
+      (await api.get<{ data: Pick<FreeProgram, 'enabled' | 'domicile'> }>('/public/free-program')).data.data,
+    staleTime: 5 * 60_000,
+  });
+}
+
 export function useUpdateFreeProgram() {
   const queryClient = useQueryClient();
   return useMutation({

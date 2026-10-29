@@ -8,6 +8,7 @@ import Loader from '@/components/Loader';
 import LocationPicker from '@/components/LocationPicker';
 import FormSection from '@/components/FormSection';
 import PaymentMethodDialog from '@/components/PaymentMethodDialog';
+import PublicFreeProgramFields from '@/components/PublicFreeProgramFields';
 import RegionFields from '@/components/RegionFields';
 import PharmacyFields, { NO_PHARMACY, pharmacyError, pharmacyPayload, type PharmacyValue } from '@/components/PharmacyFields';
 import OutOfRangeDialog from '@/components/OutOfRangeDialog';
@@ -22,10 +23,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import type { ReturningPatient } from '@/features/public/queries';
 import { useCreatePublicOrder, usePublicOrganization, usePublicServices, useQuote } from '@/features/public/queries';
+import { usePublicFreeProgram } from '@/features/free-program/queries';
 import { usePublicPharmacy } from '@/features/wards/queries';
 import { apiErrorMessage } from '@/lib/api';
 import type { LatLng } from '@/lib/geocode';
-import type { PaymentMethod } from '@/types/models';
+import type { PatientCategory, PaymentMethod } from '@/types/models';
 import ReturningPatientLookup from '@/pages/public/ReturningPatientLookup';
 
 const schema = z.object({
@@ -68,6 +70,9 @@ export default function PublicOrderFormPage() {
   const [pharmacy, setPharmacy] = useState<PharmacyValue>(NO_PHARMACY);
   const [checkPharmacy, setCheckPharmacy] = useState(false);
   const pharmacyMissing = pharmacySetup?.enabled ? pharmacyError(pharmacy) : null;
+  // Program ongkir gratis: the patient's claim, while the Admin turned it on for this form.
+  const { data: freeSetup } = usePublicFreeProgram();
+  const [category, setCategory] = useState<PatientCategory>('umum');
   // Kelurahan/desa tujuan: required, inside the service area.
   const [region, setRegion] = useState('');
   const regionMissing = region ? null : 'Pilih kelurahan/desa tujuan';
@@ -152,6 +157,7 @@ export default function PublicOrderFormPage() {
         dropoff_lng: dropoffPoint?.[1],
         ...(pharmacySetup?.enabled ? pharmacyPayload(pharmacy) : {}),
         dropoff_region_code: region,
+        patient_category: freeSetup?.enabled ? category : undefined,
       });
       navigate(`/order/${encodeURIComponent(code)}/selesai`, { replace: true });
     } catch {
@@ -249,6 +255,9 @@ export default function PublicOrderFormPage() {
                   error={checkPharmacy ? pharmacyMissing : null}
                   wards={pharmacySetup.wards}
                 />
+              )}
+              {freeSetup?.enabled && (
+                <PublicFreeProgramFields value={category} onChange={setCategory} domicile={freeSetup.domicile} />
               )}
             </FormSection>
 

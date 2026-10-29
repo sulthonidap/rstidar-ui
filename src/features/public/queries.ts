@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
-import type { DistanceSource, CareType, PublicOrganization, Service, TrackedOrder, PaymentMethod } from '@/types/models';
+import type { DistanceSource, CareType, PublicOrganization, Service, TrackedOrder, PaymentMethod, PatientCategory } from '@/types/models';
 
 /** The partner RS, for the order form header (fails until the admin has set it up). */
 export function usePublicOrganization() {
@@ -58,6 +58,8 @@ export interface PublicOrderPayload {
   ward_id?: number | null;
   /** Kelurahan/desa tujuan, inside the service area. */
   dropoff_region_code: string;
+  /** Program ongkir gratis, when the Admin turned it on for the public form: a claim CCO verifies. */
+  patient_category?: PatientCategory;
   /** Honeypot — must stay empty; bots that fill it get rejected. */
   website: string;
 }
