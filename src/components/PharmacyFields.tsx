@@ -111,7 +111,8 @@ export default function PharmacyFields({
             <SelectTrigger id="ward_id" className="w-full" aria-invalid={!!error && !value.wardId}>
               <SelectValue placeholder="— pilih bangsal —" />
             </SelectTrigger>
-            <SelectContent>
+            {/* Below the field, short with a scrollbar: the ward list is long. */}
+            <SelectContent position="popper" className="max-h-72">
               {wards.map((w) => (
                 <SelectItem key={w.id} value={String(w.id)}>
                   {w.name}
