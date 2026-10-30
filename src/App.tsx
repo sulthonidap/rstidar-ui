@@ -46,8 +46,10 @@ export default function App() {
         <Route path="/order" element={<PublicOrderFormPage />} />
         <Route path="/order/:code/selesai" element={<PublicOrderSuccessPage />} />
         <Route path="/lacak/:code?" element={<TrackOrderPage />} />
-        <Route path="/changelog" element={<ChangelogPage />} />
         <Route path="*" element={<NotFoundPage />} />
+      </Route>
+      <Route element={<PublicLayout wide />}>
+        <Route path="/changelog" element={<ChangelogPage />} />
       </Route>
 
       <Route
