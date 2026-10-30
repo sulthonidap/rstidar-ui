@@ -1,8 +1,11 @@
 import { PackageSearchIcon } from 'lucide-react';
 import { Link, Outlet } from 'react-router';
 
-/** Shell for the no-login pages (order form, success, tracking); `wide` for two-column pages (changelog). */
-export default function PublicLayout({ wide }: { wide?: boolean }) {
+/**
+ * Shell for the no-login pages (order form, success, tracking); `wide` for
+ * two-column pages (changelog), `trackLink={false}` drops "Lacak order" (a page not meant for patients).
+ */
+export default function PublicLayout({ wide, trackLink = true }: { wide?: boolean; trackLink?: boolean }) {
   const width = wide ? 'max-w-6xl' : 'max-w-3xl';
   return (
     <div className="flex min-h-screen flex-col bg-muted/40">
@@ -14,13 +17,15 @@ export default function PublicLayout({ wide }: { wide?: boolean }) {
             </span>
             <span className="text-lg font-extrabold tracking-tight">MedSend</span>
           </span>
-          <Link
-            to="/lacak"
-            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium hover:bg-white/15"
-          >
-            <PackageSearchIcon className="size-4" />
-            Lacak order
-          </Link>
+          {trackLink && (
+            <Link
+              to="/lacak"
+              className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium hover:bg-white/15"
+            >
+              <PackageSearchIcon className="size-4" />
+              Lacak order
+            </Link>
+          )}
         </div>
       </header>
 

@@ -35,7 +35,7 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     no: 2,
     title: 'Ongkir gratis untuk pasien lansia & disabilitas',
-    date: '2026-10-30',
+    date: '2026-10-29',
     summary:
       'Pasien lansia (60+) dan penyandang disabilitas yang berdomisili Kota Magelang tidak membayar ongkir, setelah petugas mengecek KTP-nya.',
     points: [
@@ -50,7 +50,7 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     no: 3,
     title: 'Privasi data pasien',
-    date: '2026-10-28',
+    date: '2026-10-29',
     summary: 'Data pasien disamarkan di semua tampilan panel dan di label paket.',
     points: [
       'Nama, nomor HP, no. rekam medis, dan alamat disamarkan di daftar order, detail order, dan label paket.',
@@ -61,7 +61,7 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     no: 4,
     title: 'Lacak order untuk pasien',
-    date: '2026-10-28',
+    date: '2026-10-29',
     summary: 'Pasien bisa memantau ordernya sendiri tanpa login.',
     points: [
       'Halaman /lacak: cukup masukkan kode order yang diterima saat membuat order.',

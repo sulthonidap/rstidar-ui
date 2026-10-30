@@ -48,7 +48,7 @@ export default function App() {
         <Route path="/lacak/:code?" element={<TrackOrderPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
-      <Route element={<PublicLayout wide />}>
+      <Route element={<PublicLayout wide trackLink={false} />}>
         <Route path="/changelog" element={<ChangelogPage />} />
       </Route>
 

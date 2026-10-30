@@ -1,4 +1,5 @@
 import { CalendarDaysIcon, ChevronDownIcon, PlayCircleIcon } from 'lucide-react';
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 
 import { cn } from '@/lib/utils';
@@ -33,7 +34,7 @@ function Entry({ entry }: { entry: ChangelogEntry }) {
         <ChevronDownIcon className="size-5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
       </summary>
 
-      <div className="space-y-4 border-t px-4 pt-4 pb-5 sm:px-5">
+      <div className="space-y-4 border-t px-4 pt-4 pb-5 animate-in fade-in slide-in-from-top-1 duration-200 sm:px-5">
         <p className="text-sm text-muted-foreground">{entry.summary}</p>
         <ul className="list-disc space-y-1 ps-5 text-sm">
           {entry.points.map((p) => (
@@ -64,6 +65,16 @@ function Entry({ entry }: { entry: ChangelogEntry }) {
 export default function ChangelogPage() {
   const [params, setParams] = useSearchParams();
   const release = RELEASES.find((r) => r.date === params.get('tanggal')) ?? RELEASES[0];
+
+  // Opening an entry can make the page scroll; keep the scrollbar's room reserved
+  // so the centred page doesn't jump sideways when the scrollbar appears.
+  useEffect(() => {
+    const html = document.documentElement;
+    html.style.scrollbarGutter = 'stable';
+    return () => {
+      html.style.scrollbarGutter = '';
+    };
+  }, []);
 
   return (
     <div className="space-y-6">
