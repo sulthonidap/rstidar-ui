@@ -86,7 +86,7 @@ export const CHANGELOG: ChangelogEntry[] = [
   },
   {
     no: 1,
-    title: 'MedSend mulai dipakai di RS Tidar',
+    title: 'Instalasi MedSend di RS Tidar',
     date: '2026-10-18',
     summary:
       'MedSend adalah layanan antar obat dari farmasi RS ke rumah pasien: pasien memesan, RS menyiapkan obatnya, kurir mengantar sampai diterima.',
