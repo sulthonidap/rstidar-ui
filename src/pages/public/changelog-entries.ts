@@ -1,6 +1,6 @@
 /**
- * The RS's feature requests and what was built — shown on /changelog, in the
- * order they were requested. Videos and their poster images live in
+ * What changed and when — shown on /changelog, grouped by date; `no` orders the
+ * entries within a date. Videos and their poster images live in
  * public/changelog-media/.
  */
 export interface ChangelogEntry {
@@ -83,5 +83,19 @@ export const CHANGELOG: ChangelogEntry[] = [
       'Di form pasien & kiosk bisa dinyalakan/dimatikan Admin; di form petugas selalu wajib.',
     ],
     video: '3-farmasi',
+  },
+  {
+    no: 1,
+    title: 'MedSend mulai dipakai di RS Tidar',
+    date: '2026-10-18',
+    summary:
+      'MedSend adalah layanan antar obat dari farmasi RS ke rumah pasien: pasien memesan, RS menyiapkan obatnya, kurir mengantar sampai diterima.',
+    points: [
+      'Order masuk dari form online pasien, kiosk di RS, atau dibuat langsung oleh petugas.',
+      'Alur order: dikonfirmasi CCO → obat disiapkan Farmasi → dikemas → dibawa kurir → selesai.',
+      'Ongkir dihitung otomatis dari jarak jalan RS ke alamat pasien; bayar tunai di kasir RS atau non-tunai (transfer/QRIS).',
+      'Kurir memakai aplikasi Android: memindai label paket saat serah terima dan mengirim foto bukti terima di tujuan.',
+      'Panel admin untuk order, pembayaran, kurir, pengguna (Admin, CCO, Farmasi, Kurir), dan rekap laporan.',
+    ],
   },
 ];
