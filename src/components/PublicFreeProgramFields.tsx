@@ -9,17 +9,22 @@ const CATEGORIES: PatientCategory[] = ['umum', 'lansia', 'disabilitas'];
 /**
  * "Program ongkir gratis" on the public form & kiosk: the patient says they're
  * lansia/disabilitas. Only a claim — the ongkir turns free once the RS staff
- * checked the KTP (Edit order), so the price shown stays the normal one.
+ * checked the KTP (FreeClaimDialog); the forms show the price as "Gratis*".
+ * Without `umum` (Admin switch off) the patient must pick lansia/disabilitas.
  */
 export default function PublicFreeProgramFields({
   value,
   onChange,
   domicile,
+  umum,
+  error,
   large,
 }: {
   value: PatientCategory;
   onChange: (value: PatientCategory) => void;
   domicile: string;
+  umum?: boolean;
+  error?: string | null;
   /** Kiosk: bigger touch targets. */
   large?: boolean;
 }) {
@@ -34,7 +39,7 @@ export default function PublicFreeProgramFields({
           value={value}
           onValueChange={(v) => v && onChange(v as PatientCategory)}
         >
-          {CATEGORIES.map((c) => (
+          {CATEGORIES.filter((c) => c !== 'umum' || umum).map((c) => (
             <ToggleGroupItem
               key={c}
               value={c}
@@ -45,9 +50,15 @@ export default function PublicFreeProgramFields({
           ))}
         </ToggleGroup>
       </div>
+      {error && <p className={large ? 'text-base text-destructive' : 'text-sm text-destructive'}>{error}</p>}
       <p className="flex items-start gap-2 text-sm text-muted-foreground">
         <InfoIcon className="mt-0.5 size-4 shrink-0" />
-        {value === 'umum' ? (
+        {value === 'umum' && !umum ? (
+          <span>
+            Layanan ini khusus pasien lansia (60+) atau disabilitas. Ongkir gratis untuk yang berdomisili {domicile},
+            setelah petugas RS mengecek KTP-nya.
+          </span>
+        ) : value === 'umum' ? (
           <span>
             Ongkir gratis untuk pasien lansia (60+) atau disabilitas yang berdomisili {domicile}. Pilih kategorinya
             kalau sesuai.
@@ -55,8 +66,8 @@ export default function PublicFreeProgramFields({
         ) : (
           <span>
             Ongkir <b>gratis setelah petugas RS mengecek</b> KTP (domisili {domicile}
-            {value === 'disabilitas' ? ') dan kartu/surat keterangan disabilitas' : ', umur 60+)'}. Sebelum dicek,
-            biaya yang tampil masih biaya normal.
+            {value === 'disabilitas' ? ') dan kartu/surat keterangan disabilitas' : ', umur 60+)'}. Kalau tidak
+            memenuhi syarat, biaya normal.
           </span>
         )}
       </p>

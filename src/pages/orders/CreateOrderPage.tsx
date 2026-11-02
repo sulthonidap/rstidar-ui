@@ -25,7 +25,11 @@ import LocationPicker from '@/components/LocationPicker';
 import FormSection from '@/components/FormSection';
 import RegionFields from '@/components/RegionFields';
 import PharmacyFields, { NO_PHARMACY, pharmacyError, pharmacyPayload, type PharmacyValue } from '@/components/PharmacyFields';
-import FreeProgramFields, { NO_FREE_PROGRAM, type FreeProgramValue } from '@/components/FreeProgramFields';
+import FreeProgramFields, {
+  freeProgramError,
+  NO_FREE_PROGRAM,
+  type FreeProgramValue,
+} from '@/components/FreeProgramFields';
 import { useFreeProgram } from '@/features/free-program/queries';
 import PaymentMethodDialog from '@/components/PaymentMethodDialog';
 import OutOfRangeDialog from '@/components/OutOfRangeDialog';
@@ -84,6 +88,7 @@ export default function CreateOrderPage() {
   const [freeProgram, setFreeProgram] = useState<FreeProgramValue>(NO_FREE_PROGRAM);
   const { data: program } = useFreeProgram();
   const isFree = !!program?.enabled && freeProgram.category !== 'umum' && freeProgram.domicileChecked;
+  const categoryMissing = freeProgramError(program, freeProgram);
   const isFarmasi = hasRole(user, 'farmasi');
   const [pharmacy, setPharmacy] = useState<PharmacyValue>(NO_PHARMACY);
   // Shown once the staff tried to submit.
@@ -158,7 +163,7 @@ export default function CreateOrderPage() {
 
   const onSubmit = (values: FormValues) => {
     setCheckPharmacy(true);
-    if (pharmacyMissing || (showCustomerFields && regionMissing)) return;
+    if (pharmacyMissing || categoryMissing || (showCustomerFields && regionMissing)) return;
     if (mode === 'existing' && !picked) {
       setPickError('Pilih customer dari daftar, atau pakai "Customer baru".');
       return;
@@ -342,7 +347,12 @@ export default function CreateOrderPage() {
                   error={checkPharmacy ? pharmacyMissing : null}
                 />
 
-                <FreeProgramFields value={freeProgram} onChange={setFreeProgram} price={selectedQuote?.price} />
+                <FreeProgramFields
+                  value={freeProgram}
+                  onChange={setFreeProgram}
+                  price={selectedQuote?.price}
+                  error={checkPharmacy ? categoryMissing : null}
+                />
               </FormSection>
 
               <FormSection step={2} title="Alamat tujuan">

@@ -15,7 +15,7 @@ export default function FreeProgramCard() {
   const { data } = useFreeProgram();
   const update = useUpdateFreeProgram();
   const [edits, setEdits] = useState<Partial<FreeProgram>>({});
-  const value: FreeProgram = { enabled: false, public: false, domicile: 'Kota Magelang', ...data, ...edits };
+  const value: FreeProgram = { enabled: false, public: false, domicile: 'Kota Magelang', umum: false, ...data, ...edits };
   const dirty = Object.keys(edits).length > 0;
 
   const save = () =>
@@ -55,6 +55,16 @@ export default function FreeProgramCard() {
               <span className="block text-xs text-muted-foreground">
                 Pasien bisa mengajukan sebagai lansia/disabilitas. Gratis setelah CCO mengecek KTP dan menyetujuinya
                 lewat tombol "Cek pengajuan gratis" di order.
+              </span>
+            </span>
+          </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Switch checked={value.umum} onCheckedChange={(v) => setEdits((e) => ({ ...e, umum: v }))} />
+            <span>
+              <span className="font-medium">Kategori Umum</span>
+              <span className="block text-xs text-muted-foreground">
+                Mati: layanan khusus lansia/disabilitas, order baru wajib memilih salah satunya. Nyala: pasien umum
+                (bayar ongkir normal) juga bisa dipilih.
               </span>
             </span>
           </label>

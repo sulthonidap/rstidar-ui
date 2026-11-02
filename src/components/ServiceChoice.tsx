@@ -18,6 +18,7 @@ export default function ServiceChoice({
   invalid,
   size = 'default',
   free,
+  pending,
 }: {
   services: Service[] | undefined;
   quote: Quote | undefined;
@@ -28,6 +29,8 @@ export default function ServiceChoice({
   size?: 'default' | 'lg';
   /** Program ongkir gratis: show "Gratis" with the tariff struck through. */
   free?: boolean;
+  /** With `free`: only a claim, free once the RS staff checked the KTP ("Gratis*"). */
+  pending?: boolean;
 }) {
   const lg = size === 'lg';
   const hasDistance = quote?.distance_km != null;
@@ -69,9 +72,11 @@ export default function ServiceChoice({
             )}
             <span className={cn('font-medium', lg && 'text-2xl font-bold')}>{s.name}</span>
             {free ? (
-              <span className="text-base font-semibold text-emerald-700 dark:text-emerald-400">
-                Gratis{' '}
-                <span className="text-xs font-normal text-muted-foreground line-through">{formatRupiah(price)}</span>
+              <span className={cn('text-base font-semibold text-emerald-700 dark:text-emerald-400', lg && 'text-3xl font-extrabold')}>
+                Gratis{pending && '*'}{' '}
+                <span className={cn('text-xs font-normal text-muted-foreground line-through', lg && 'text-lg')}>
+                  {formatRupiah(price)}
+                </span>
               </span>
             ) : (
               <span className={cn('text-base font-semibold text-primary', lg && 'text-3xl font-extrabold')}>

@@ -1,4 +1,5 @@
 import { BadgeCheckIcon, TriangleAlertIcon } from 'lucide-react';
+import { useState } from 'react';
 
 import { Label } from '@/components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -16,28 +17,41 @@ export const NO_FREE_PROGRAM: FreeProgramValue = { category: 'umum', domicileChe
 
 const CATEGORIES: PatientCategory[] = ['umum', 'lansia', 'disabilitas'];
 
+/** Staff create: while "Umum" is off the category is required (lansia/disabilitas). */
+export function freeProgramError(
+  program: { enabled: boolean; umum: boolean } | undefined,
+  value: FreeProgramValue,
+): string | null {
+  return program?.enabled && !program.umum && value.category === 'umum' ? 'Pilih kategori pasien' : null;
+}
+
 /**
  * "Program ongkir gratis" on the staff order forms: the staff verify the patient
  * (lansia/disabilitas + domicile from the KTP) and pick the category, which marks
  * the domicile as checked. Hidden while the Admin hasn't turned the program on
  * for the staff form; `verify` (Edit order) also shows it while it's on for the
  * public form only, to show a patient's open claim (decided in FreeClaimDialog). `price` is the tariff,
- * shown as the normal price.
+ * shown as the normal price. "Umum" is only offered while the Admin turned it on
+ * (or, on Edit, when the order already is umum).
  */
 export default function FreeProgramFields({
   value,
   onChange,
   price,
   verify,
+  error,
 }: {
   value: FreeProgramValue;
   onChange: (value: FreeProgramValue) => void;
   price?: number;
   verify?: boolean;
+  error?: string | null;
 }) {
   const { data: program } = useFreeProgram();
+  const [initial] = useState(value.category);
   if (!program?.enabled && !(verify && program?.public)) return null;
 
+  const categories = CATEGORIES.filter((c) => c !== 'umum' || program.umum || (verify && initial === 'umum'));
   const special = value.category !== 'umum';
   const free = special && value.domicileChecked;
   // From the public form: the patient picked the category, nobody checked yet.
@@ -60,7 +74,7 @@ export default function FreeProgramFields({
             onChange({ category, domicileChecked: category !== 'umum' });
           }}
         >
-          {CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <ToggleGroupItem
               key={c}
               value={c}
@@ -71,6 +85,7 @@ export default function FreeProgramFields({
           ))}
         </ToggleGroup>
       </div>
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       {claim && (
         <p className="rounded-md border border-sky-300 bg-sky-50 px-3 py-2 text-sm text-sky-900 dark:border-sky-500/40 dark:bg-sky-500/10 dark:text-sky-200">

@@ -189,6 +189,8 @@ export default function KioskPage() {
   // Program ongkir gratis: the patient's claim, while the Admin turned it on.
   const { data: freeSetup } = usePublicFreeProgram();
   const [category, setCategory] = useState<PatientCategory>('umum');
+  // Picked lansia/disabilitas: show the price struck through as "Gratis*" (still a claim).
+  const claimsFree = !!freeSetup?.enabled && category !== 'umum';
   // Kelurahan/desa tujuan: required, inside the service area.
   const [region, setRegion] = useState('');
   const placed = useTrackOrder(code);
@@ -271,7 +273,9 @@ export default function KioskPage() {
       draft.medical_record_no.trim() !== '' &&
       draft.patient_name.trim() !== '' &&
       PHONE.test(draft.customer_phone.trim()) &&
-      (!askPharmacy || !pharmacyError(pharmacy)),
+      (!askPharmacy || !pharmacyError(pharmacy)) &&
+      // While "Umum" is off the patient must pick lansia/disabilitas.
+      !(freeSetup?.enabled && !freeSetup.umum && category === 'umum'),
     location:
       !!region && draft.dropoff_address.trim() !== '' && !quote.data?.out_of_range && !quote.data?.outside_area,
     service: !!selected,
@@ -406,7 +410,13 @@ export default function KioskPage() {
             </div>
           )}
           {freeSetup?.enabled && (
-            <PublicFreeProgramFields value={category} onChange={setCategory} domicile={freeSetup.domicile} large />
+            <PublicFreeProgramFields
+              value={category}
+              onChange={setCategory}
+              domicile={freeSetup.domicile}
+              umum={freeSetup.umum}
+              large
+            />
           )}
           <KioskKeyboard />
         </Panel>
@@ -472,8 +482,16 @@ export default function KioskPage() {
           subtitle={point ? 'Harga menyesuaikan jarak dari rumah sakit ke alamat Anda.' : 'Titik peta belum ditandai, harga memakai tarif dasar.'}
         />
         <Panel className="mx-auto max-w-4xl space-y-5">
-          <ServiceChoice size="lg" services={services} quote={quote.data} value={serviceId} onChange={setServiceId} />
-          <QuoteLine quote={selectedQuote} loading={quote.isFetching} />
+          <ServiceChoice
+            size="lg"
+            services={services}
+            quote={quote.data}
+            value={serviceId}
+            onChange={setServiceId}
+            free={claimsFree}
+            pending
+          />
+          <QuoteLine quote={selectedQuote} loading={quote.isFetching} free={claimsFree} pending />
         </Panel>
       </>
     );
@@ -482,7 +500,14 @@ export default function KioskPage() {
       ['Pasien', [draft.patient_name, draft.medical_record_no && `RM ${draft.medical_record_no}`].filter(Boolean).join(' · ') || '—'],
       ['No. HP', draft.customer_phone],
       ['Alamat', draft.dropoff_address + (draft.notes ? ` (${draft.notes})` : '')],
-      ['Layanan', selected ? `${services?.find((s) => String(s.id) === serviceId)?.name ?? ''} · ${formatRupiah(selected.price)}` : '—'],
+      [
+        'Layanan',
+        selected
+          ? `${services?.find((s) => String(s.id) === serviceId)?.name ?? ''} · ${
+              claimsFree ? `Gratis* (normal ${formatRupiah(selected.price)})` : formatRupiah(selected.price)
+            }`
+          : '—',
+      ],
     ];
     body = (
       <>
@@ -499,6 +524,11 @@ export default function KioskPage() {
             </dl>
           </Panel>
           <Panel className="space-y-5">
+            {claimsFree && (
+              <p className="text-base text-emerald-800">
+                *Ongkir gratis setelah KTP dicek petugas RS. Cara bayar dipakai kalau ternyata tidak memenuhi syarat.
+              </p>
+            )}
             <PaymentChoice size="lg" value={payment} onChange={setPayment} />
             {create.isError && (
               <Alert variant="destructive">

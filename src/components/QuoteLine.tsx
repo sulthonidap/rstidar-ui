@@ -25,11 +25,14 @@ export default function QuoteLine({
   quote,
   loading,
   free,
+  pending,
 }: {
   quote: Quote | undefined;
   loading: boolean;
   /** Program ongkir gratis: the patient pays nothing. */
   free?: boolean;
+  /** With `free`: only a claim (public form/kiosk), free once the RS staff checked the KTP. */
+  pending?: boolean;
 }) {
   if (!quote) {
     return loading ? (
@@ -69,15 +72,22 @@ export default function QuoteLine({
     return (
       <div className="flex items-start gap-3 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2.5 text-emerald-800 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300">
         <BadgeCheckIcon className="mt-0.5 size-4 shrink-0" />
-        <p className="text-sm">
-          Biaya <span className="font-semibold">Gratis</span>
-          <span className="text-muted-foreground">
-            {' '}
-            · normal <span className="line-through">{formatRupiah(quote.price)}</span>
-            {dist && ` · ${dist}`}
-          </span>
-          {loading && <LoaderCircleIcon className="ms-2 inline size-3.5 animate-spin text-muted-foreground" />}
-        </p>
+        <div className="text-sm">
+          <p>
+            Biaya <span className="font-semibold">Gratis{pending && '*'}</span>
+            <span className="text-muted-foreground">
+              {' '}
+              · normal <span className="line-through">{formatRupiah(quote.price)}</span>
+              {dist && ` · ${dist}`}
+            </span>
+            {loading && <LoaderCircleIcon className="ms-2 inline size-3.5 animate-spin text-muted-foreground" />}
+          </p>
+          {pending && (
+            <p className="text-xs">
+              *Setelah KTP dicek petugas RS. Kalau tidak memenuhi syarat, biaya normal {formatRupiah(quote.price)}.
+            </p>
+          )}
+        </div>
       </div>
     );
   }

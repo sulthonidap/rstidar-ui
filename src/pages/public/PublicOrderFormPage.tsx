@@ -72,6 +72,9 @@ export default function PublicOrderFormPage() {
   // Program ongkir gratis: the patient's claim, while the Admin turned it on for this form.
   const { data: freeSetup } = usePublicFreeProgram();
   const [category, setCategory] = useState<PatientCategory>('umum');
+  // Picked lansia/disabilitas: show the price struck through as "Gratis*" (still a claim).
+  const claimsFree = !!freeSetup?.enabled && category !== 'umum';
+  const categoryMissing = freeSetup?.enabled && !freeSetup.umum && category === 'umum' ? 'Pilih kategori pasien' : null;
   // Kelurahan/desa tujuan: required, inside the service area.
   const [region, setRegion] = useState('');
   const regionMissing = region ? null : 'Pilih kelurahan/desa tujuan';
@@ -135,7 +138,7 @@ export default function PublicOrderFormPage() {
 
   const onSubmit = (values: FormValues) => {
     setCheckPharmacy(true);
-    if (pharmacyMissing || regionMissing) return;
+    if (pharmacyMissing || regionMissing || categoryMissing) return;
     create.reset();
     setDraft(values);
   };
@@ -268,7 +271,13 @@ export default function PublicOrderFormPage() {
                 />
               )}
               {freeSetup?.enabled && (
-                <PublicFreeProgramFields value={category} onChange={setCategory} domicile={freeSetup.domicile} />
+                <PublicFreeProgramFields
+                  value={category}
+                  onChange={setCategory}
+                  domicile={freeSetup.domicile}
+                  umum={freeSetup.umum}
+                  error={checkPharmacy ? categoryMissing : null}
+                />
               )}
             </FormSection>
 
@@ -324,6 +333,8 @@ export default function PublicOrderFormPage() {
                     value={field.value}
                     onChange={field.onChange}
                     invalid={!!errors.service_id}
+                    free={claimsFree}
+                    pending
                   />
                 )}
               />
@@ -335,7 +346,7 @@ export default function PublicOrderFormPage() {
               <FieldError message={errors.notes?.message} />
             </FormSection>
 
-            <QuoteLine quote={selectedQuote} loading={quote.isFetching} />
+            <QuoteLine quote={selectedQuote} loading={quote.isFetching} free={claimsFree} pending />
             <OutOfRangeDialog quote={quote.data} rsName={org.name} />
 
             <Button type="submit" className="h-11 w-full text-base" disabled={create.isPending || quote.data?.out_of_range || quote.data?.outside_area}>

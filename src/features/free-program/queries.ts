@@ -18,7 +18,7 @@ export function usePublicFreeProgram() {
   return useQuery({
     queryKey: ['public-free-program'],
     queryFn: async () =>
-      (await api.get<{ data: Pick<FreeProgram, 'enabled' | 'domicile'> }>('/public/free-program')).data.data,
+      (await api.get<{ data: Pick<FreeProgram, 'enabled' | 'domicile' | 'umum'> }>('/public/free-program')).data.data,
     staleTime: 5 * 60_000,
   });
 }

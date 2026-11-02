@@ -158,6 +158,8 @@ export interface FreeProgram {
   public: boolean;
   /** Domicile requirement, e.g. "Kota Magelang". */
   domicile: string;
+  /** "Umum" can be picked. Off (default) = lansia/disabilitas only, required on new orders. */
+  umum: boolean;
 }
 
 /** Where the prescription comes from: rawat jalan (+ pharmacy queue no.) or rawat inap (+ ward). */
