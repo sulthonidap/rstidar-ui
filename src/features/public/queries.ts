@@ -39,13 +39,12 @@ export function useTrackOrder(code: string) {
 
 export interface PublicOrderPayload {
   service_id: number;
-  customer_name: string;
   customer_phone: string;
   /** Optional: the API uses "Farmasi" when empty. */
   pickup_address?: string;
   dropoff_address: string;
   notes?: string;
-  /** Optional patient data (when the patient isn't the recipient) and medical record no. */
+  /** The patient (also the recipient: the courier notes who took it) and medical record no. */
   patient_name?: string;
   medical_record_no?: string;
   /** Destination map point (optional). */

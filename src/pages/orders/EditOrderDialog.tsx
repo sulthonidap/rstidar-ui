@@ -36,7 +36,6 @@ import type { Order } from '@/types/models';
 // Same rules as the create form (and the API's validateOrderFields).
 const schema = z.object({
   service_id: z.string().min(1, 'Pilih tipe layanan'),
-  customer_name: z.string().trim().min(1, 'Nama wajib diisi').max(255, 'Maksimal 255 karakter'),
   customer_phone: z
     .string()
     .trim()
@@ -55,7 +54,7 @@ function FieldError({ message }: { message?: string }) {
   return message ? <p className="text-xs text-destructive">{message}</p> : null;
 }
 
-/** Correct an order's recipient, addresses, service or notes (CCO/Admin). */
+/** Correct an order's patient, phone, addresses, service or notes (CCO/Admin). */
 export function EditOrderDialog({
   order,
   open,
@@ -79,7 +78,6 @@ export function EditOrderDialog({
     resolver: zodResolver(schema),
     values: {
       service_id: order.service_id ? String(order.service_id) : '',
-      customer_name: order.customer_name,
       customer_phone: order.customer_phone,
       dropoff_address: order.dropoff_address,
       notes: order.notes ?? '',
@@ -207,23 +205,16 @@ export function EditOrderDialog({
             <FieldError message={errors.service_id?.message} />
             <OutOfRangeDialog quote={quote.data} rsName={rsOrg?.name} />
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="edit_customer_name">Nama penerima</Label>
-              <Input id="edit_customer_name" aria-invalid={!!errors.customer_name} {...register('customer_name')} />
-              <FieldError message={errors.customer_name?.message} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="edit_customer_phone">Nomor HP / WhatsApp</Label>
-              <Input
-                id="edit_customer_phone"
-                type="tel"
-                inputMode="tel"
-                aria-invalid={!!errors.customer_phone}
-                {...register('customer_phone')}
-              />
-              <FieldError message={errors.customer_phone?.message} />
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit_customer_phone">Nomor HP / WhatsApp</Label>
+            <Input
+              id="edit_customer_phone"
+              type="tel"
+              inputMode="tel"
+              aria-invalid={!!errors.customer_phone}
+              {...register('customer_phone')}
+            />
+            <FieldError message={errors.customer_phone?.message} />
           </div>
           <RegionFields
             value={region}

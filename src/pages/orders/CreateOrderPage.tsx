@@ -40,7 +40,6 @@ type CustomerMode = 'existing' | 'new';
 // Same rules as the public form (and the API's validateOrderFields).
 const schema = z.object({
   service_id: z.string().min(1, 'Pilih tipe layanan'),
-  customer_name: z.string().trim().min(1, 'Nama wajib diisi').max(255, 'Maksimal 255 karakter'),
   customer_phone: z
     .string()
     .trim()
@@ -49,6 +48,7 @@ const schema = z.object({
     .regex(/^[0-9+\-\s()*]{6,}$/, 'Nomor HP tidak valid, contoh 081234567890'),
   dropoff_address: z.string().trim().min(1, 'Alamat tujuan wajib diisi').max(1000, 'Maksimal 1000 karakter'),
   notes: z.string().max(1000, 'Maksimal 1000 karakter').optional(),
+  // Also the recipient: a saved customer's (masked) name lands here, the API restores it.
   patient_name: z.string().trim().min(1, 'Nama pasien wajib diisi').max(255, 'Maksimal 255 karakter'),
   medical_record_no: z.string().trim().min(1, 'No. Rekam Medis wajib diisi').max(50, 'Maksimal 50 karakter'),
 });
@@ -105,7 +105,6 @@ export default function CreateOrderPage() {
     resolver: zodResolver(schema),
     defaultValues: {
       service_id: '',
-      customer_name: '',
       customer_phone: '',
       dropoff_address: '',
       notes: '',
@@ -120,12 +119,12 @@ export default function CreateOrderPage() {
     setPicked(customer);
     setPickError(null);
     const opts = { shouldValidate: !!customer, shouldDirty: true };
-    setValue('customer_name', customer?.name ?? '', opts);
+    setValue('patient_name', customer?.name ?? '', opts);
     setValue('customer_phone', customer?.phone ?? '', opts);
     setValue('dropoff_address', customer?.address ?? '', opts);
     setDropoffPoint(customer?.lat != null && customer?.lng != null ? [customer.lat, customer.lng] : null);
     setRegion(customer?.region_code ?? '');
-    if (!customer) clearErrors(['customer_name', 'customer_phone', 'dropoff_address']);
+    if (!customer) clearErrors(['patient_name', 'customer_phone', 'dropoff_address']);
   };
 
   // In 'Customer lama' the recipient fields appear once a customer is picked (prefilled).
@@ -179,7 +178,6 @@ export default function CreateOrderPage() {
     try {
       const order = await create.mutateAsync({
         service_id: Number(values.service_id),
-        customer_name: values.customer_name,
         customer_phone: values.customer_phone,
         dropoff_address: values.dropoff_address,
         notes: values.notes?.trim() || undefined,
@@ -252,7 +250,7 @@ export default function CreateOrderPage() {
               )}
 
 
-              <FormSection step={1} title="Penerima" hint="Pilih dari daftar customer, atau isi customer baru.">
+              <FormSection step={1} title="Pasien" hint="Pilih dari daftar customer, atau isi customer baru. Obat diantar atas nama pasien.">
                 <div className="space-y-3 rounded-lg border bg-muted/40 p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <Label>Customer</Label>
@@ -306,28 +304,6 @@ export default function CreateOrderPage() {
                   )}
                 </div>
 
-                {showCustomerFields && (
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="customer_name">Nama penerima</Label>
-                      <Input id="customer_name" aria-invalid={!!errors.customer_name} {...register('customer_name')} />
-                      <FieldError message={errors.customer_name?.message} />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="customer_phone">Nomor HP / WhatsApp</Label>
-                      <Input
-                        id="customer_phone"
-                        type="tel"
-                        inputMode="tel"
-                        placeholder="08xx"
-                        aria-invalid={!!errors.customer_phone}
-                        {...register('customer_phone')}
-                      />
-                      <FieldError message={errors.customer_phone?.message} />
-                    </div>
-                  </div>
-                )}
-
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="space-y-1.5">
                     <Label htmlFor="patient_name">
@@ -344,6 +320,21 @@ export default function CreateOrderPage() {
                     <FieldError message={errors.medical_record_no?.message} />
                   </div>
                 </div>
+
+                {showCustomerFields && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="customer_phone">Nomor HP / WhatsApp</Label>
+                    <Input
+                      id="customer_phone"
+                      type="tel"
+                      inputMode="tel"
+                      placeholder="08xx"
+                      aria-invalid={!!errors.customer_phone}
+                      {...register('customer_phone')}
+                    />
+                    <FieldError message={errors.customer_phone?.message} />
+                  </div>
+                )}
 
                 <PharmacyFields
                   value={pharmacy}

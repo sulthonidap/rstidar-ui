@@ -33,7 +33,6 @@ import ReturningPatientLookup from '@/pages/public/ReturningPatientLookup';
 const schema = z.object({
   service_id: z.string().min(1, 'Pilih tipe layanan'),
   // Same limits as the API (and the old Laravel form).
-  customer_name: z.string().trim().min(1, 'Nama wajib diisi').max(255, 'Maksimal 255 karakter'),
   customer_phone: z
     .string()
     .trim()
@@ -41,7 +40,7 @@ const schema = z.object({
     .regex(/^[0-9+\-\s()]{6,}$/, 'Nomor HP tidak valid, contoh 081234567890'),
   dropoff_address: z.string().trim().min(1, 'Alamat tujuan wajib diisi').max(1000, 'Maksimal 1000 karakter'),
   notes: z.string().max(1000, 'Maksimal 1000 karakter').optional(),
-  // Optional, same limits as the staff form.
+  // Same limits as the staff form. The patient is also the recipient (see the API's orderExtras.patient).
   patient_name: z.string().trim().min(1, 'Nama pasien wajib diisi').max(255, 'Maksimal 255 karakter'),
   medical_record_no: z.string().trim().min(1, 'No. Rekam Medis wajib diisi').max(50, 'Maksimal 50 karakter'),
   website: z.string(),
@@ -88,7 +87,6 @@ export default function PublicOrderFormPage() {
     resolver: zodResolver(schema),
     defaultValues: {
       service_id: '',
-      customer_name: '',
       customer_phone: '',
       // Picked up at the RS pharmacy; staff can change it when editing the order.
       dropoff_address: '',
@@ -127,7 +125,6 @@ export default function PublicOrderFormPage() {
   // "Pasien lama" found: fill in their last order's details (all still editable).
   const prefill = (p: ReturningPatient) => {
     const opts = { shouldValidate: true, shouldDirty: true };
-    setValue('customer_name', p.customer_name, opts);
     setValue('customer_phone', p.customer_phone, opts);
     setValue('dropoff_address', p.dropoff_address, opts);
     setValue('patient_name', p.patient_name ?? '', opts);
@@ -202,7 +199,7 @@ export default function PublicOrderFormPage() {
             <FormSection
               step={1}
               title="Data pasien"
-              hint="Membantu farmasi mencocokkan resep. Kosongkan kalau tidak tahu."
+              hint="Membantu farmasi mencocokkan resep. Obat diantar atas nama pasien."
             >
               <ToggleGroup
                 type="single"
@@ -248,6 +245,20 @@ export default function PublicOrderFormPage() {
                   <FieldError message={errors.patient_name?.message} />
                 </div>
               </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="customer_phone">Nomor HP / WhatsApp</Label>
+                <Input
+                  id="customer_phone"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  placeholder="08xx"
+                  aria-invalid={!!errors.customer_phone}
+                  {...register('customer_phone')}
+                />
+                <p className="text-xs text-muted-foreground">Dihubungi kurir saat mengantar.</p>
+                <FieldError message={errors.customer_phone?.message} />
+              </div>
               {pharmacySetup?.enabled && (
                 <PharmacyFields
                   value={pharmacy}
@@ -261,30 +272,7 @@ export default function PublicOrderFormPage() {
               )}
             </FormSection>
 
-            <FormSection step={2} title="Penerima" hint="Orang yang akan menerima paket di alamat tujuan.">
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor="customer_name">Nama penerima</Label>
-                  <Input id="customer_name" autoComplete="name" aria-invalid={!!errors.customer_name} {...register('customer_name')} />
-                  <FieldError message={errors.customer_name?.message} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="customer_phone">Nomor HP / WhatsApp</Label>
-                  <Input
-                    id="customer_phone"
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    placeholder="08xx"
-                    aria-invalid={!!errors.customer_phone}
-                    {...register('customer_phone')}
-                  />
-                  <FieldError message={errors.customer_phone?.message} />
-                </div>
-              </div>
-            </FormSection>
-
-            <FormSection step={3} title="Alamat tujuan">
+            <FormSection step={2} title="Alamat tujuan">
               <RegionFields
                 value={region}
                 onChange={setRegion}
@@ -325,7 +313,7 @@ export default function PublicOrderFormPage() {
               </div>
             </FormSection>
 
-            <FormSection step={4} title="Layanan" hint="Harga menyesuaikan jarak dari RS ke titik lokasi tujuan.">
+            <FormSection step={3} title="Layanan" hint="Harga menyesuaikan jarak dari RS ke titik lokasi tujuan.">
               <Controller
                 control={control}
                 name="service_id"
@@ -342,7 +330,7 @@ export default function PublicOrderFormPage() {
               <FieldError message={errors.service_id?.message} />
             </FormSection>
 
-            <FormSection step={5} title="Catatan" hint="Opsional, mis. patokan rumah atau pesan untuk petugas.">
+            <FormSection step={4} title="Catatan" hint="Opsional, mis. patokan rumah atau pesan untuk petugas.">
               <Textarea id="notes" rows={2} aria-label="Catatan" {...register('notes')} />
               <FieldError message={errors.notes?.message} />
             </FormSection>

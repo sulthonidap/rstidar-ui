@@ -250,10 +250,13 @@ export default function OrderDetailPage() {
           </CardHeader>
           <CardContent className="flex flex-1 flex-col gap-4">
             <dl className="grid grid-cols-2 gap-4">
-              <Field label="Nama" value={order.customer_name} />
+              <Field label="Nama pasien" value={order.patient_name ?? order.customer_name} />
               <Field label="Telepon" value={order.customer_phone} />
-              {order.patient_name && <Field label="Nama pasien" value={order.patient_name} />}
               {order.medical_record_no && <Field label="No. Rekam Medis" value={order.medical_record_no} />}
+              {/* Orders from before "penerima = pasien" may name someone else. */}
+              {order.patient_name && order.patient_name !== order.customer_name && (
+                <Field label="Penerima" value={order.customer_name} />
+              )}
               <Field label="Pickup" value={order.pickup_address} />
               {order.notes && <Field label="Catatan" value={order.notes} />}
               <div className="col-span-2">

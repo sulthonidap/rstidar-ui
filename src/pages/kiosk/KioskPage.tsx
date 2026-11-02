@@ -58,7 +58,6 @@ const FLOW: { step: Step; label: string }[] = [
 interface Draft {
   medical_record_no: string;
   patient_name: string;
-  customer_name: string;
   customer_phone: string;
   dropoff_address: string;
   notes: string;
@@ -67,7 +66,6 @@ interface Draft {
 const EMPTY: Draft = {
   medical_record_no: '',
   patient_name: '',
-  customer_name: '',
   customer_phone: '',
   dropoff_address: '',
   notes: '',
@@ -223,7 +221,6 @@ export default function KioskPage() {
     setDraft({
       medical_record_no: p.medical_record_no ?? '',
       patient_name: p.patient_name ?? '',
-      customer_name: p.customer_name,
       customer_phone: p.customer_phone,
       dropoff_address: p.dropoff_address,
       notes: '',
@@ -247,7 +244,6 @@ export default function KioskPage() {
     try {
       const res = await create.mutateAsync({
         service_id: Number(serviceId),
-        customer_name: draft.customer_name.trim(),
         customer_phone: draft.customer_phone.trim(),
         dropoff_address: draft.dropoff_address.trim(),
         notes: draft.notes.trim() || undefined,
@@ -274,7 +270,6 @@ export default function KioskPage() {
     patient:
       draft.medical_record_no.trim() !== '' &&
       draft.patient_name.trim() !== '' &&
-      draft.customer_name.trim() !== '' &&
       PHONE.test(draft.customer_phone.trim()) &&
       (!askPharmacy || !pharmacyError(pharmacy)),
     location:
@@ -379,7 +374,7 @@ export default function KioskPage() {
   } else if (step === 'patient') {
     body = (
       <>
-        <Heading title="Data Pasien & Penerima" subtitle="Siapa pasiennya, dan siapa yang menerima obat di rumah?" />
+        <Heading title="Data Pasien" subtitle="Obat diantar atas nama pasien. Nomor HP dihubungi kurir saat mengantar." />
         <Panel className="mx-auto max-w-4xl space-y-6">
           {lookup.isSuccess && (
             <p className="flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 font-medium text-emerald-700">
@@ -394,20 +389,7 @@ export default function KioskPage() {
             <Field label="Nama pasien">
               <Input className={fieldClass} placeholder="Sesuai kartu berobat" value={draft.patient_name} onChange={set('patient_name')} />
             </Field>
-            <Field label="Nama penerima">
-              <Input className={fieldClass} placeholder="Nama orang yang menerima obat" value={draft.customer_name} onChange={set('customer_name')} />
-              {/* Often the patient receives it: one tap instead of typing the name twice on the kiosk keyboard. */}
-              {draft.patient_name.trim() !== '' && draft.customer_name.trim() !== draft.patient_name.trim() && (
-                <button
-                  type="button"
-                  className="text-base font-semibold text-primary underline-offset-4 hover:underline"
-                  onClick={() => setDraft((d) => ({ ...d, customer_name: d.patient_name.trim() }))}
-                >
-                  Penerima = pasien ({draft.patient_name.trim()})
-                </button>
-              )}
-            </Field>
-            <Field label="No. HP / WhatsApp penerima">
+            <Field label="No. HP / WhatsApp">
               <Input
                 className={fieldClass}
                 type="tel"
@@ -498,7 +480,7 @@ export default function KioskPage() {
   } else if (step === 'payment') {
     const rows: [string, string][] = [
       ['Pasien', [draft.patient_name, draft.medical_record_no && `RM ${draft.medical_record_no}`].filter(Boolean).join(' · ') || '—'],
-      ['Penerima', `${draft.customer_name} · ${draft.customer_phone}`],
+      ['No. HP', draft.customer_phone],
       ['Alamat', draft.dropoff_address + (draft.notes ? ` (${draft.notes})` : '')],
       ['Layanan', selected ? `${services?.find((s) => String(s.id) === serviceId)?.name ?? ''} · ${formatRupiah(selected.price)}` : '—'],
     ];

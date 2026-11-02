@@ -14,7 +14,7 @@ const STEPS = [
   <>
     Tekan <b>Cari data saya</b>.
   </>,
-  'Data penerima, pasien, dan alamat terisi otomatis di bawah — periksa lagi, ubah kalau ada yang berbeda.',
+  'Data pasien, nomor HP, dan alamat terisi otomatis di bawah — periksa lagi, ubah kalau ada yang berbeda.',
 ];
 
 /**

@@ -163,7 +163,6 @@ export function useBulkAssignCourier() {
 
 export interface CreateOrderPayload {
   service_id: number;
-  customer_name: string;
   customer_phone: string;
   /** Optional: the API uses "Farmasi" when empty. */
   pickup_address?: string;
@@ -210,7 +209,6 @@ export function useCreateOrder() {
 
 export interface UpdateOrderPayload {
   service_id: number;
-  customer_name: string;
   customer_phone: string;
   /** Optional: the API uses "Farmasi" when empty. */
   pickup_address?: string;
