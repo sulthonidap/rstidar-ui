@@ -10,10 +10,14 @@ type Status = 'connecting' | 'open' | 'closed';
  * Authorization header (EventSource can't set headers, and a token in the URL
  * ends up in server/proxy logs). Reconnects automatically with a short delay.
  * Returns a function that stops listening.
+ *
+ * onChanged: the silent "orders.changed" (some order data was written,
+ * anywhere) — refresh, but nothing to show.
  */
 export function listenToOrderEvents(
   onOrderEvent: (event: OrderEvent) => void,
   onStatus?: (status: Status) => void,
+  onChanged?: () => void,
 ): () => void {
   const controller = new AbortController();
   let retryMs = 3000;
@@ -52,7 +56,9 @@ export function listenToOrderEvents(
               if (line.startsWith('event:')) type = line.slice(6).trim();
               else if (line.startsWith('data:')) data += line.slice(5).trim();
             }
-            if ((type === 'order.created' || type === 'order.status') && data) {
+            if (type === 'orders.changed') {
+              onChanged?.();
+            } else if ((type === 'order.created' || type === 'order.status') && data) {
               try {
                 onOrderEvent(JSON.parse(data) as OrderEvent);
               } catch {

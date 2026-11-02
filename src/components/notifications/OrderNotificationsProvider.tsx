@@ -20,24 +20,34 @@ const MAX_ITEMS = 20;
  * → Ops). Each event refreshes order lists/stats, pops a toast with a "Lihat"
  * button, plays a sound, shows a desktop notification when the tab is in the
  * background, and lands in the bell.
+ *
+ * Every panel (Admin too) also gets the silent "orders.changed" whenever any
+ * order data is written — courier app, payment, edit, cancel… — and just
+ * refetches, so lists stay current without toasts for steps that aren't theirs.
  */
 export default function OrderNotificationsProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { user } = useAuth();
   const enabled = hasRole(user, 'cco', 'farmasi', 'ops', 'finance');
+  const live = enabled || hasRole(user, 'admin');
   const [items, setItems] = useState<OrderEvent[]>([]);
   const [unread, setUnread] = useState(0);
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!live) return;
+    // Only active queries refetch; the rest are just marked stale.
+    const refresh = () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+    };
+    let wasOpen = false;
     return listenToOrderEvents(
       (event) => {
         setItems((prev) => [event, ...prev.filter((e) => eventKey(e) !== eventKey(event))].slice(0, MAX_ITEMS));
         setUnread((n) => n + 1);
-        queryClient.invalidateQueries({ queryKey: ['orders'] });
-        queryClient.invalidateQueries({ queryKey: ['transactions'] });
+        refresh();
 
         const { title, body } = describeOrderEvent(event);
         toast.info(title, {
@@ -56,9 +66,15 @@ export default function OrderNotificationsProvider({ children }: { children: Rea
           };
         }
       },
-      (status) => setConnected(status === 'open'),
+      (status) => {
+        setConnected(status === 'open');
+        // Back after a dropped connection: catch up on what changed meanwhile.
+        if (status === 'open' && wasOpen) refresh();
+        if (status === 'open') wasOpen = true;
+      },
+      refresh,
     );
-  }, [enabled, queryClient, navigate]);
+  }, [live, queryClient, navigate]);
 
   const markAllRead = useCallback(() => setUnread(0), []);
   const value = useMemo(

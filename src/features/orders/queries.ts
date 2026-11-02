@@ -18,6 +18,13 @@ export interface OrderFilters {
 /** Delivery schedule filter: '' = all. */
 export type ScheduleFilter = '' | 'asap' | 'today' | 'later';
 
+/**
+ * Order screens are refreshed live by "orders.changed" (OrderNotificationsProvider);
+ * this is the backup for a dropped stream: refetch every 30s while on screen and
+ * when the tab comes back.
+ */
+const LIVE_BACKUP = { refetchInterval: 30_000, refetchOnWindowFocus: true } as const;
+
 export function useOrders(filters: OrderFilters) {
   return useQuery({
     queryKey: ['orders', 'list', filters],
@@ -35,6 +42,7 @@ export function useOrders(filters: OrderFilters) {
     },
     // Keep the current page on screen while the next one loads.
     placeholderData: keepPreviousData,
+    ...LIVE_BACKUP,
   });
 }
 
@@ -47,6 +55,7 @@ export function useOrderStats(days: StatsRange = 30) {
       return data.data;
     },
     placeholderData: keepPreviousData,
+    ...LIVE_BACKUP,
   });
 }
 
@@ -58,6 +67,7 @@ export function useOrder(id: number | string) {
       return data.data;
     },
     enabled: !!id,
+    ...LIVE_BACKUP,
   });
 }
 
