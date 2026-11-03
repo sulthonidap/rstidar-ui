@@ -258,7 +258,7 @@ export default function OrderDetailPage() {
                 <Field label="Penerima" value={order.customer_name} />
               )}
               <Field label="Pickup" value={order.pickup_address} />
-              {order.notes && <Field label="Catatan" value={order.notes} />}
+              {order.notes && <Field label="Patokan alamat" value={order.notes} />}
               <div className="col-span-2">
                 <Field
                   label="Tujuan"

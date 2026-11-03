@@ -275,9 +275,14 @@ export function EditOrderDialog({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="edit_notes">
-              Catatan <span className="font-normal text-muted-foreground">(opsional)</span>
+              Patokan alamat <span className="font-normal text-muted-foreground">(opsional)</span>
             </Label>
-            <Textarea id="edit_notes" rows={2} {...register('notes')} />
+            <Textarea
+              id="edit_notes"
+              rows={2}
+              placeholder="mis. rumah cat biru, pagar hitam, sebelah masjid"
+              {...register('notes')}
+            />
             <FieldError message={errors.notes?.message} />
           </div>
           <DialogFooter>

@@ -225,7 +225,7 @@ export default function KioskPage() {
       patient_name: p.patient_name ?? '',
       customer_phone: p.customer_phone,
       dropoff_address: p.dropoff_address,
-      notes: '',
+      notes: p.notes ?? '',
     });
     if (p.dropoff_lat != null && p.dropoff_lng != null) setPoint([p.dropoff_lat, p.dropoff_lng]);
     setRegion(p.dropoff_region_code ?? '');

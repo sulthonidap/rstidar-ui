@@ -97,10 +97,11 @@ export default function PharmacyFields({
             id="pharmacy_queue_no"
             value={value.queueNo}
             maxLength={20}
-            placeholder="mis. A-012"
-            onChange={(e) => onChange({ ...value, queueNo: e.target.value })}
+            placeholder="mis. L2A.55"
+            onChange={(e) => onChange({ ...value, queueNo: e.target.value.toUpperCase() })}
             aria-invalid={!!error && !value.queueNo.trim()}
           />
+          <p className="text-xs text-muted-foreground">Isi sesuai nomor antrian farmasi yang Anda dapat</p>
         </div>
       )}
 

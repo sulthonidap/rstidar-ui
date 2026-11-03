@@ -132,6 +132,7 @@ export default function PublicOrderFormPage() {
     setValue('dropoff_address', p.dropoff_address, opts);
     setValue('patient_name', p.patient_name ?? '', opts);
     setValue('medical_record_no', p.medical_record_no ?? '', opts);
+    setValue('notes', p.notes ?? '', opts);
     if (p.dropoff_lat != null && p.dropoff_lng != null) setDropoffPoint([p.dropoff_lat, p.dropoff_lng]);
     if (p.dropoff_region_code) setRegion(p.dropoff_region_code);
   };
@@ -341,8 +342,14 @@ export default function PublicOrderFormPage() {
               <FieldError message={errors.service_id?.message} />
             </FormSection>
 
-            <FormSection step={4} title="Catatan" hint="Opsional, mis. patokan rumah atau pesan untuk petugas.">
-              <Textarea id="notes" rows={2} aria-label="Catatan" {...register('notes')} />
+            <FormSection step={4} title="Patokan alamat" hint="Opsional, supaya kurir mudah menemukan rumah Anda.">
+              <Textarea
+                id="notes"
+                rows={2}
+                aria-label="Patokan alamat"
+                placeholder="mis. rumah cat biru, pagar hitam, sebelah masjid"
+                {...register('notes')}
+              />
               <FieldError message={errors.notes?.message} />
             </FormSection>
 

@@ -127,6 +127,8 @@ export default function CreateOrderPage() {
     setValue('patient_name', customer?.name ?? '', opts);
     setValue('customer_phone', customer?.phone ?? '', opts);
     setValue('dropoff_address', customer?.address ?? '', opts);
+    // The customer's notes (patokan rumah) as the order's notes, still editable.
+    setValue('notes', customer?.notes ?? '', opts);
     setDropoffPoint(customer?.lat != null && customer?.lng != null ? [customer.lat, customer.lng] : null);
     setRegion(customer?.region_code ?? '');
     if (!customer) clearErrors(['patient_name', 'customer_phone', 'dropoff_address']);
@@ -279,7 +281,7 @@ export default function CreateOrderPage() {
                             <p className="text-xs text-muted-foreground">
                               {picked.phone} · {picked.address}
                             </p>
-                            {picked.notes && <p className="mt-1 text-xs text-muted-foreground">Catatan: {picked.notes}</p>}
+                            {picked.notes && <p className="mt-1 text-xs text-muted-foreground">Patokan: {picked.notes}</p>}
                           </div>
                         </div>
                         <Button type="button" variant="ghost" size="sm" onClick={() => fillFrom(null)}>
@@ -426,8 +428,14 @@ export default function CreateOrderPage() {
                 </div>
               </FormSection>
 
-              <FormSection step={4} title="Catatan" hint="Opsional, mis. patokan rumah atau pesan untuk kurir.">
-                <Textarea id="notes" rows={2} aria-label="Catatan" {...register('notes')} />
+              <FormSection step={4} title="Patokan alamat" hint="Opsional, supaya kurir mudah menemukan rumahnya.">
+                <Textarea
+                  id="notes"
+                  rows={2}
+                  aria-label="Patokan alamat"
+                  placeholder="mis. rumah cat biru, pagar hitam, sebelah masjid"
+                  {...register('notes')}
+                />
                 <FieldError message={errors.notes?.message} />
               </FormSection>
 

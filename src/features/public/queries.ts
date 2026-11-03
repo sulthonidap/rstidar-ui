@@ -73,6 +73,8 @@ export interface ReturningPatient {
   dropoff_lat: number | null;
   dropoff_lng: number | null;
   dropoff_region_code: string | null;
+  /** The last order's notes (patokan alamat). */
+  notes: string | null;
 }
 
 /** "Pasien lama": look up the latest order by phone number or medical record number. */

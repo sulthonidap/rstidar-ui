@@ -1,4 +1,5 @@
 import JsBarcode from 'jsbarcode';
+import { MessageCircleIcon } from 'lucide-react';
 import QRCode from 'qrcode';
 import type { Ref } from 'react';
 import { useEffect, useRef, useState } from 'react';
@@ -18,6 +19,9 @@ export const SHIPPING_LABEL_PRINT_CSS = `
   .label-sheet { break-after: page; }
   .label-frame:last-child .label-sheet { break-after: auto; }
 `;
+
+/** RS pharmacist hotline printed on the package label, for questions about the medicine. */
+const PHARMACIST_WA = { name: 'HALLO APOTEKER', phone: '085-792-225-100' };
 
 /** Public tracking page for an order (opened from the QR on the customer's stub). */
 const trackUrl = (code: string) => `${window.location.origin}/lacak/${encodeURIComponent(code)}`;
@@ -127,7 +131,7 @@ export default function ShippingLabel({
         </section>
 
         {/* Details */}
-        <footer className="min-h-0 pt-[1.5mm]">
+        <footer className="min-h-0 overflow-hidden pt-[1.5mm]">
           <dl className="grid grid-cols-[auto_1fr] gap-x-[2mm] gap-y-[0.3mm] text-[8pt]">
             <dt className="font-bold">Kurir</dt>
             <dd>{order.courier?.user?.name ?? '—'}</dd>
@@ -147,12 +151,23 @@ export default function ShippingLabel({
             </dd>
             {order.notes && (
               <>
-                <dt className="font-bold">Catatan</dt>
+                <dt className="font-bold">Patokan</dt>
                 <dd className="line-clamp-2">{order.notes}</dd>
               </>
             )}
           </dl>
         </footer>
+
+        {/* Pharmacist hotline */}
+        <aside className="mt-auto mb-[1.5mm] flex shrink-0 items-center gap-[2mm] rounded-[1mm] border-2 border-black px-[2mm] py-[1mm]">
+          <MessageCircleIcon className="size-[6mm] shrink-0" strokeWidth={2.5} />
+          <div className="leading-tight">
+            <p className="text-[7pt]">
+              Ada pertanyaan tentang obat? WhatsApp <b>{PHARMACIST_WA.name}</b>
+            </p>
+            <p className="text-[12pt] font-extrabold tracking-wide">{PHARMACIST_WA.phone}</p>
+          </div>
+        </aside>
       </div>
 
       {/* ── Scissors line ── */}
@@ -175,6 +190,12 @@ export default function ShippingLabel({
             {payment && <b> · {PAYMENT_STATUS_LABELS[payment]}</b>}
           </p>
           <p className="mt-[0.5mm] text-[6.5pt] leading-tight">Scan QR untuk melacak pesanan, atau buka {window.location.host}/lacak</p>
+          <p className="mt-[0.8mm] flex items-center gap-[1mm] border-t border-black pt-[0.8mm] text-[7pt] leading-tight">
+            <MessageCircleIcon className="size-[3.5mm] shrink-0" strokeWidth={2.5} />
+            <span>
+              Tanya obat: WA {PHARMACIST_WA.name} <b className="text-[8.5pt]">{PHARMACIST_WA.phone}</b>
+            </span>
+          </p>
         </div>
         {qr && <img src={qr} alt="" className="size-[27mm] shrink-0 [image-rendering:pixelated]" />}
       </div>

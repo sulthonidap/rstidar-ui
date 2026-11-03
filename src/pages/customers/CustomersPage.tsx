@@ -139,9 +139,14 @@ function CustomerDialog({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="notes">
-              Catatan <span className="font-normal text-muted-foreground">(opsional, mis. patokan rumah)</span>
+              Patokan alamat <span className="font-normal text-muted-foreground">(opsional)</span>
             </Label>
-            <Textarea id="notes" rows={2} {...register('notes')} />
+            <Textarea
+              id="notes"
+              rows={2}
+              placeholder="mis. rumah cat biru, pagar hitam, sebelah masjid"
+              {...register('notes')}
+            />
             <FieldError message={errors.notes?.message} />
           </div>
           <DialogFooter>
