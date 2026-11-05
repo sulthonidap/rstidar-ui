@@ -31,7 +31,7 @@ const PAGE_TITLES: Record<string, string> = {
 function titleFor(pathname: string): string {
   if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
   if (pathname.startsWith('/orders/')) return 'Detail Order';
-  return 'MedSend';
+  return 'RSUD Tidar';
 }
 
 export default function AdminLayout() {

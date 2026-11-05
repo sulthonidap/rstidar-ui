@@ -82,7 +82,7 @@ export default function ChangelogPage() {
         <p className="text-xs font-semibold tracking-widest text-brand-orange uppercase">Changelog</p>
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Catatan pembaruan</h1>
         <p className="text-sm text-muted-foreground">
-          Riwayat pembaruan MedSend di RS Tidar. Pilih tanggal, lalu klik salah satu untuk melihat detailnya.
+          Riwayat pembaruan aplikasi RS Tidar. Pilih tanggal, lalu klik salah satu untuk melihat detailnya.
         </p>
       </div>
 

@@ -68,8 +68,7 @@ function useApkQr() {
 function Wordmark({ className }: { className?: string }) {
   return (
     <span className={className}>
-      <span className="text-primary">Med</span>
-      <span className="text-brand-orange">Send</span>
+      <span className="text-primary">RSUD Tidar</span>
     </span>
   );
 }
@@ -121,7 +120,7 @@ export default function LoginPage() {
           <div className="flex size-28 items-center justify-center rounded-3xl bg-white p-4 shadow-2xl">
             <img src="/logo.png" alt="" className="size-full object-contain" />
           </div>
-          <span className="text-5xl font-extrabold tracking-tight">MedSend</span>
+          <span className="text-5xl font-extrabold tracking-tight">RSUD Tidar</span>
 
           <a
             href={APK_URL}
@@ -154,7 +153,7 @@ export default function LoginPage() {
         </div>
 
         <p className="absolute bottom-12 left-12 text-xs text-primary-foreground/60">
-          © {new Date().getFullYear()} MedSend
+          © {new Date().getFullYear()} RSUD Tidar
         </p>
       </aside>
 
@@ -193,7 +192,7 @@ export default function LoginPage() {
                   id="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="nama@medsend.test"
+                  placeholder="nama@rsudtidar.com"
                   className="h-11 bg-background pl-10"
                   aria-invalid={!!errors.email}
                   {...register('email')}

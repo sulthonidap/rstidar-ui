@@ -15,7 +15,7 @@ export default function PublicLayout({ wide, trackLink = true }: { wide?: boolea
             <span className="flex size-9 items-center justify-center rounded-lg bg-white p-1">
               <img src="/logo.png" alt="" className="size-full object-contain" />
             </span>
-            <span className="text-lg font-extrabold tracking-tight">MedSend</span>
+            <span className="text-lg font-extrabold tracking-tight">RSUD Tidar</span>
           </span>
           {trackLink && (
             <Link
@@ -33,7 +33,7 @@ export default function PublicLayout({ wide, trackLink = true }: { wide?: boolea
         <Outlet />
       </main>
 
-      <footer className="py-6 text-center text-xs text-muted-foreground">© {new Date().getFullYear()} MedSend</footer>
+      <footer className="py-6 text-center text-xs text-muted-foreground">© {new Date().getFullYear()} RSUD Tidar</footer>
     </div>
   );
 }

@@ -153,7 +153,7 @@ function ChecklistDialog({
             {complete ? <PartyPopperIcon className="size-6 text-brand-orange" /> : <ListChecksIcon className="size-6" />}
           </div>
           <DialogTitle className="text-2xl font-bold tracking-tight">
-            {complete ? 'MedSend siap dipakai' : 'Siapkan MedSend'}
+            {complete ? 'Aplikasi siap dipakai' : 'Siapkan aplikasi'}
           </DialogTitle>
           <DialogDescription>
             {complete
@@ -194,7 +194,7 @@ function ChecklistDialog({
         <DialogFooter className="sm:justify-between">
           {complete ? (
             <Button className="sm:ml-auto" onClick={onClose}>
-              Mulai pakai MedSend
+              Mulai pakai aplikasi
             </Button>
           ) : (
             <>

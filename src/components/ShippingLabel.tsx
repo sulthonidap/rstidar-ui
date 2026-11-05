@@ -129,7 +129,7 @@ export default function ShippingLabel({
         <section className="border-b border-black py-[1.5mm]">
           <p className="text-[7pt] font-bold tracking-widest uppercase">Pengirim</p>
           <p className="font-bold">
-            {org?.name ?? 'MedSend'}
+            {org?.name ?? 'RSUD Tidar'}
             {org?.phone && <span className="font-normal"> · {org.phone}</span>}
           </p>
           <p className="line-clamp-1">{order.pickup_address}</p>
@@ -177,7 +177,7 @@ export default function ShippingLabel({
       {/* ── Bottom ¼: stub for whoever placed the order ── */}
       <div className="flex min-h-0 flex-1 items-center gap-[3mm] px-[4mm] pb-[2.5mm] pt-[1mm]">
         <div className="min-w-0 flex-1">
-          <p className="text-[6.5pt] font-bold tracking-widest uppercase">Bukti pesanan · {org?.name ?? 'MedSend'}</p>
+          <p className="text-[6.5pt] font-bold tracking-widest uppercase">Bukti pesanan · {org?.name ?? 'RSUD Tidar'}</p>
           <p className="font-mono text-[12pt] leading-tight font-bold tracking-wider">{order.code}</p>
           <p className="truncate font-semibold">
             {patient ? `Pasien ${patient}` : stubOrder.customer_name}

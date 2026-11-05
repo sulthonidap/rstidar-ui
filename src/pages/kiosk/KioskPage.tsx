@@ -571,7 +571,7 @@ export default function KioskPage() {
       <header className="flex items-center justify-between gap-4 px-4 py-4 sm:px-8 sm:py-6">
         <button type="button" onClick={reset} className="flex min-w-0 items-center gap-3 sm:gap-4" aria-label="Kembali ke awal">
           <img src="/logo.png" alt="" className="size-10 shrink-0 object-contain sm:size-14" />
-          <span className="truncate text-lg font-extrabold text-primary sm:text-2xl">{org?.name ?? 'MedSend'}</span>
+          <span className="truncate text-lg font-extrabold text-primary sm:text-2xl">{org?.name ?? 'RSUD Tidar'}</span>
         </button>
         <Clock />
       </header>

@@ -69,7 +69,7 @@ export default function PaymentSettingsPage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="account_name">Atas nama</Label>
-              <Input id="account_name" placeholder="PT MedSend Indonesia" {...field('account_name')} />
+              <Input id="account_name" placeholder="RSUD Tidar Kota Magelang" {...field('account_name')} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="instructions">

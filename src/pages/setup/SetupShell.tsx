@@ -25,8 +25,7 @@ export default function SetupShell({
         <div className="flex flex-col items-center gap-3">
           <img src="/logo.png" alt="" className="size-14 object-contain" />
           <span className="text-3xl font-extrabold tracking-tight">
-            <span className="text-primary">Med</span>
-            <span className="text-brand-orange">Send</span>
+            <span className="text-primary">RSUD Tidar</span>
           </span>
         </div>
 

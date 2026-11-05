@@ -98,7 +98,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              tooltip="MedSend"
+              tooltip="RSUD Tidar"
               className="h-auto gap-3 data-[slot=sidebar-menu-button]:p-2! group-data-[collapsible=icon]:data-[slot=sidebar-menu-button]:p-0.5!"
             >
               <NavLink to="/">
@@ -108,8 +108,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                   className="size-10! object-contain group-data-[collapsible=icon]:size-8!"
                 />
                 <span className="text-2xl font-bold tracking-tight group-data-[collapsible=icon]:hidden">
-                  <span className="text-primary">Med</span>
-                  <span className="text-brand-orange">Send</span>
+                  <span className="text-primary">RSUD Tidar</span>
                 </span>
               </NavLink>
             </SidebarMenuButton>
