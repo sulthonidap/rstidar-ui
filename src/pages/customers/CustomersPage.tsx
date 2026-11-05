@@ -9,6 +9,7 @@ import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog';
 import DataTablePagination from '@/components/DataTablePagination';
 import Loader from '@/components/Loader';
 import LocationPicker from '@/components/LocationPicker';
+import RevealButton from '@/components/RevealButton';
 import TableSearch from '@/components/TableSearch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -18,8 +19,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
-import { useCustomers, useDeleteCustomer, useSaveCustomer } from '@/features/customers/queries';
+import { fetchCustomerPrivate, useCustomers, useDeleteCustomer, useSaveCustomer } from '@/features/customers/queries';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { useReveal } from '@/hooks/use-reveal';
 import { apiErrorMessage } from '@/lib/api';
 import { formatDateTime } from '@/lib/format';
 import type { LatLng } from '@/lib/geocode';
@@ -181,6 +183,7 @@ export default function CustomersPage() {
   const [editing, setEditing] = useState<Customer | null>(null);
   const [deleting, setDeleting] = useState<Customer | null>(null);
   const remove = useDeleteCustomer();
+  const reveal = useReveal(fetchCustomerPrivate);
 
   const openCreate = () => {
     setEditing(null);
@@ -193,10 +196,26 @@ export default function CustomersPage() {
         header: 'Nama',
         cell: (info) => <span className="font-medium">{info.getValue()}</span>,
       }),
-      columnHelper.accessor('phone', { header: 'Nomor HP' }),
+      columnHelper.accessor('phone', {
+        header: 'Nomor HP',
+        cell: (info) => (
+          <span className="flex items-center gap-1">
+            {reveal.get(info.row.original.id)?.phone ?? info.getValue()}
+            <RevealButton
+              shown={!!reveal.get(info.row.original.id)}
+              loading={reveal.isLoading(info.row.original.id)}
+              onClick={() => void reveal.toggle(info.row.original.id)}
+            />
+          </span>
+        ),
+      }),
       columnHelper.accessor('address', {
         header: 'Alamat',
-        cell: (info) => <span className="line-clamp-2 max-w-md whitespace-normal">{info.getValue()}</span>,
+        cell: (info) => (
+          <span className="line-clamp-2 max-w-md whitespace-normal">
+            {reveal.get(info.row.original.id)?.address ?? info.getValue()}
+          </span>
+        ),
       }),
       columnHelper.accessor('order_count', {
         header: 'Order',
@@ -235,7 +254,7 @@ export default function CustomersPage() {
         ),
       }),
     ],
-    [],
+    [reveal],
   );
 
   const table = useReactTable({

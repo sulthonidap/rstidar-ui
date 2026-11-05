@@ -71,6 +71,17 @@ export function useOrder(id: number | string) {
   });
 }
 
+export interface OrderPrivate {
+  customer_phone: string;
+  medical_record_no: string | null;
+  dropoff_address: string;
+}
+
+/** An order's real phone, medical record no. and address, for the eye button (logged by the API). */
+export async function fetchOrderPrivate(id: number) {
+  return (await api.get<{ data: OrderPrivate }>(`/orders/${id}/private`)).data.data;
+}
+
 /**
  * Full (unmasked) order data for printing shipping labels. The rest of the panel
  * only ever gets masked patient data; labels go on the package, so they print in full.

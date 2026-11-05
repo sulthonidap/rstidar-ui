@@ -14,29 +14,28 @@ import type { OrderEvent } from '@/types/models';
 const MAX_ITEMS = 20;
 
 /**
- * For the RS staff who move orders along (CCO, Farmasi, Ops), connects the panel
- * to the live order stream; the API only sends each role the steps it must act
- * on (new order → CCO, confirmed → Farmasi + Ops, siap diambil → CCO, siap kirim
- * → Ops). Each event refreshes order lists/stats, pops a toast with a "Lihat"
- * button, plays a sound, shows a desktop notification when the tab is in the
- * background, and lands in the bell.
+ * For the RS staff who move orders along, connects the panel to the live order
+ * stream; the API only sends each role the steps it must act on (new order → CCO,
+ * confirmed → Farmasi + Ops, siap diambil → CCO, siap kirim → Ops; Admin gets them
+ * all, one Admin may run the whole flow). Each event refreshes order lists/stats,
+ * pops a toast with a "Lihat" button, plays a sound, shows a desktop notification
+ * when the tab is in the background, and lands in the bell.
  *
- * Every panel (Admin too) also gets the silent "orders.changed" whenever any
- * order data is written — courier app, payment, edit, cancel… — and just
- * refetches, so lists stay current without toasts for steps that aren't theirs.
+ * Every panel also gets the silent "orders.changed" whenever any order data is
+ * written — courier app, payment, edit, cancel… — and just refetches, so lists
+ * stay current without toasts for steps that aren't theirs.
  */
 export default function OrderNotificationsProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const enabled = hasRole(user, 'cco', 'farmasi', 'ops', 'finance');
-  const live = enabled || hasRole(user, 'admin');
+  const enabled = hasRole(user, 'admin', 'cco', 'farmasi', 'ops', 'finance');
   const [items, setItems] = useState<OrderEvent[]>([]);
   const [unread, setUnread] = useState(0);
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    if (!live) return;
+    if (!enabled) return;
     // Only active queries refetch; the rest are just marked stale.
     const refresh = () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
@@ -74,7 +73,7 @@ export default function OrderNotificationsProvider({ children }: { children: Rea
       },
       refresh,
     );
-  }, [live, queryClient, navigate]);
+  }, [enabled, queryClient, navigate]);
 
   const markAllRead = useCallback(() => setUnread(0), []);
   const value = useMemo(

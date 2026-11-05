@@ -15,6 +15,7 @@ import Loader from '@/components/Loader';
 import DataTablePagination from '@/components/DataTablePagination';
 import type { DateRange } from '@/components/DateRangePicker';
 import DateRangePicker from '@/components/DateRangePicker';
+import RevealButton from '@/components/RevealButton';
 import StatusBadge from '@/components/StatusBadge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -37,8 +38,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import type { ScheduleFilter } from '@/features/orders/queries';
-import { useOrders } from '@/features/orders/queries';
+import { fetchOrderPrivate, useOrders } from '@/features/orders/queries';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { useReveal } from '@/hooks/use-reveal';
 import { useAuth } from '@/lib/auth';
 import { formatDateTime, toDateParam } from '@/lib/format';
 import { awaitingPayment, PAYMENT_STATUS_COLOR } from '@/lib/payment';
@@ -135,6 +137,8 @@ export default function OrdersListPage() {
     setRowSelection({});
   }
 
+  const reveal = useReveal(fetchOrderPrivate);
+
   const columns = useMemo(
     () => [
       ...(canBulk
@@ -177,7 +181,19 @@ export default function OrdersListPage() {
         cell: (info) => (
           <div>
             <div className="font-medium">{info.getValue()}</div>
-            <div className="text-xs text-muted-foreground">{info.row.original.customer_phone}</div>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              {reveal.get(info.row.original.id)?.customer_phone ?? info.row.original.customer_phone}
+              <RevealButton
+                shown={!!reveal.get(info.row.original.id)}
+                loading={reveal.isLoading(info.row.original.id)}
+                onClick={() => void reveal.toggle(info.row.original.id)}
+              />
+            </div>
+            {reveal.get(info.row.original.id) && (
+              <div className="max-w-56 text-xs whitespace-normal text-muted-foreground">
+                {reveal.get(info.row.original.id)?.dropoff_address}
+              </div>
+            )}
             {info.row.original.dropoff_region && (
               <div className="max-w-56 truncate text-xs text-muted-foreground" title={info.row.original.dropoff_region}>
                 {info.row.original.dropoff_region}
@@ -186,14 +202,13 @@ export default function OrdersListPage() {
           </div>
         ),
       }),
+      columnHelper.accessor('created_at', {
+        header: 'Masuk',
+        cell: (info) => formatDateTime(info.getValue()),
+      }),
       columnHelper.accessor('care_type', {
         header: 'Farmasi',
         cell: (info) => <OrderPharmacy order={info.row.original} />,
-      }),
-      columnHelper.accessor((row) => row.service?.name, {
-        id: 'service',
-        header: 'Layanan',
-        cell: (info) => info.getValue() ?? '—',
       }),
       columnHelper.accessor('scheduled_date', {
         header: 'Jadwal',
@@ -241,9 +256,10 @@ export default function OrdersListPage() {
         header: 'Harga',
         cell: (info) => <OrderPrice order={info.row.original} />,
       }),
-      columnHelper.accessor('created_at', {
-        header: 'Masuk',
-        cell: (info) => formatDateTime(info.getValue()),
+      columnHelper.accessor((row) => row.service?.name, {
+        id: 'service',
+        header: 'Layanan',
+        cell: (info) => info.getValue() ?? '—',
       }),
       columnHelper.display({
         id: 'actions',
@@ -257,7 +273,7 @@ export default function OrdersListPage() {
         ),
       }),
     ],
-    [canBulk],
+    [canBulk, reveal],
   );
 
   const table = useReactTable({

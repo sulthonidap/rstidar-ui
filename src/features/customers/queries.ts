@@ -24,6 +24,11 @@ export function useCustomers(filters: CustomerFilters, { enabled = true }: { ena
   });
 }
 
+/** A customer's real phone and address, for the eye button (logged by the API). */
+export async function fetchCustomerPrivate(id: number) {
+  return (await api.get<{ data: { phone: string; address: string } }>(`/customers/${id}/private`)).data.data;
+}
+
 export interface CustomerPayload {
   name: string;
   phone: string;

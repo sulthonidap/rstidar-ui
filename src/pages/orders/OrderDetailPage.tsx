@@ -17,9 +17,11 @@ import DeliveryProof from '@/components/DeliveryProof';
 import OrderMap from '@/components/OrderMap';
 import StatusTimeline from '@/components/StatusTimeline';
 import StatusBadge from '@/components/StatusBadge';
+import RevealButton from '@/components/RevealButton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useOrder } from '@/features/orders/queries';
+import { fetchOrderPrivate, useOrder } from '@/features/orders/queries';
+import { useReveal } from '@/hooks/use-reveal';
 import { useAuth } from '@/lib/auth';
 import { formatDateTime, formatRupiah } from '@/lib/format';
 import { hasRole } from '@/lib/roles';
@@ -106,6 +108,7 @@ export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { data: order, isLoading } = useOrder(id ?? '');
+  const reveal = useReveal(fetchOrderPrivate);
   const location = useLocation();
   const navigate = useNavigate();
   // Just made on "Buat order": pop the payment up once (state is cleared on close,
@@ -120,6 +123,7 @@ export default function OrderDetailPage() {
 
   if (isLoading) return <Loader label="Memuat order…" />;
   if (!order) return <p className="text-sm text-destructive">Order tidak ditemukan.</p>;
+  const shown = reveal.get(order.id);
 
   // Fixing map points: whoever plans the route (CCO/Ops/Admin), while the order is open.
   const canFixMap = hasRole(user, 'admin', 'cco', 'ops') && order.status !== 'done' && order.status !== 'cancelled';
@@ -246,13 +250,22 @@ export default function OrderDetailPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Customer & Alamat</CardTitle>
+            <CardTitle className="flex items-center gap-1 text-sm">
+              Customer & Alamat
+              <RevealButton
+                shown={!!shown}
+                loading={reveal.isLoading(order.id)}
+                onClick={() => void reveal.toggle(order.id)}
+              />
+            </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-1 flex-col gap-4">
             <dl className="grid grid-cols-2 gap-4">
               <Field label="Nama pasien" value={order.patient_name ?? order.customer_name} />
-              <Field label="Telepon" value={order.customer_phone} />
-              {order.medical_record_no && <Field label="No. Rekam Medis" value={order.medical_record_no} />}
+              <Field label="Telepon" value={shown?.customer_phone ?? order.customer_phone} />
+              {order.medical_record_no && (
+                <Field label="No. Rekam Medis" value={shown?.medical_record_no ?? order.medical_record_no} />
+              )}
               {/* Orders from before "penerima = pasien" may name someone else. */}
               {order.patient_name && order.patient_name !== order.customer_name && (
                 <Field label="Penerima" value={order.customer_name} />
@@ -264,7 +277,7 @@ export default function OrderDetailPage() {
                   label="Tujuan"
                   value={
                     <>
-                      {order.dropoff_address}
+                      {shown?.dropoff_address ?? order.dropoff_address}
                       {order.dropoff_region && <span className="block text-muted-foreground">{order.dropoff_region}</span>}
                     </>
                   }
