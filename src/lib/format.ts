@@ -7,6 +7,16 @@ export function formatRupiah(amount: number): string {
   }).format(amount);
 }
 
+export function formatDate(value?: string | null): string {
+  if (!value) return '—';
+  return new Date(value).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+export function formatTime(value?: string | null): string {
+  if (!value) return '—';
+  return new Date(value).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+}
+
 export function formatDateTime(value?: string | null): string {
   if (!value) return '—';
   return new Date(value).toLocaleString('id-ID', {

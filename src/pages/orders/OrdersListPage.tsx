@@ -42,7 +42,7 @@ import { fetchOrderPrivate, useOrders } from '@/features/orders/queries';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useReveal } from '@/hooks/use-reveal';
 import { useAuth } from '@/lib/auth';
-import { formatDateTime, toDateParam } from '@/lib/format';
+import { formatDate, formatTime, toDateParam } from '@/lib/format';
 import { awaitingPayment, PAYMENT_STATUS_COLOR } from '@/lib/payment';
 import { hasRole } from '@/lib/roles';
 import { isToday, parseDay, SCHEDULE_SLOTS } from '@/lib/schedule';
@@ -204,7 +204,12 @@ export default function OrdersListPage() {
       }),
       columnHelper.accessor('created_at', {
         header: 'Masuk',
-        cell: (info) => formatDateTime(info.getValue()),
+        cell: (info) => (
+          <div className="whitespace-nowrap">
+            <div>{formatDate(info.getValue())}</div>
+            <div className="text-xs text-muted-foreground">{formatTime(info.getValue())}</div>
+          </div>
+        ),
       }),
       columnHelper.accessor('care_type', {
         header: 'Farmasi',
