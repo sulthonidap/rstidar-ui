@@ -98,7 +98,7 @@ export default function ShippingLabel({
         <header className="flex items-center justify-between border-b-2 border-black pb-[1.5mm]">
           <div className="flex items-center gap-[2mm]">
             <img src="/logo.png" alt="" className="size-[7mm] object-contain" />
-            <span className="text-[13pt] font-extrabold tracking-tight">MedSend</span>
+            <span className="text-[13pt] font-extrabold tracking-tight">RSUD Tidar</span>
           </div>
           <span className="rounded-[1mm] bg-black px-[3mm] py-[0.8mm] text-[10pt] font-extrabold tracking-wide text-white uppercase">
             {order.service?.name ?? '—'}
@@ -107,7 +107,7 @@ export default function ShippingLabel({
 
         {/* Barcode */}
         <section className="flex flex-col items-center border-b-2 border-black py-[2mm]">
-          <svg ref={barcodeRef} className="h-[13mm] w-full" />
+          <svg ref={barcodeRef} className="h-[11mm] w-full" />
           <p className="mt-[1mm] font-mono text-[12pt] font-bold tracking-wider">{order.code}</p>
         </section>
 
@@ -118,6 +118,11 @@ export default function ShippingLabel({
           <p className="font-semibold">{order.customer_phone}</p>
           <p className="mt-[0.5mm] line-clamp-2">{order.dropoff_address}</p>
           {order.dropoff_region && <p className="line-clamp-1">{order.dropoff_region}</p>}
+          {order.notes && (
+            <p className="line-clamp-2 text-[8pt]">
+              <b>Patokan:</b> {order.notes}
+            </p>
+          )}
         </section>
 
         {/* Sender */}
@@ -132,13 +137,13 @@ export default function ShippingLabel({
 
         {/* Details */}
         <footer className="min-h-0 overflow-hidden pt-[1.5mm]">
-          <dl className="grid grid-cols-[auto_1fr] gap-x-[2mm] gap-y-[0.3mm] text-[8pt]">
+          <dl className="grid grid-cols-[auto_1fr_auto_1fr] gap-x-[2mm] gap-y-[0.3mm] text-[8pt]">
             <dt className="font-bold">Kurir</dt>
-            <dd>{order.courier?.user?.name ?? '—'}</dd>
+            <dd className="col-span-3">{order.courier?.user?.name ?? '—'}</dd>
             {order.care_type && (
               <>
                 <dt className="font-bold">Farmasi</dt>
-                <dd className="font-bold">
+                <dd className="col-span-3 font-bold">
                   {[CARE_TYPE_LABELS[order.care_type], pharmacyDetail(order)].filter(Boolean).join(' · ')}
                 </dd>
               </>
@@ -149,24 +154,16 @@ export default function ShippingLabel({
             <dd className={order.scheduled_date ? 'font-bold' : undefined}>
               {formatSchedule(order.scheduled_date, order.scheduled_slot)}
             </dd>
-            {order.notes && (
-              <>
-                <dt className="font-bold">Patokan</dt>
-                <dd className="line-clamp-2">{order.notes}</dd>
-              </>
-            )}
           </dl>
         </footer>
 
         {/* Pharmacist hotline */}
-        <aside className="mt-auto mb-[1.5mm] flex shrink-0 items-center gap-[2mm] rounded-[1mm] border-2 border-black px-[2mm] py-[1mm]">
-          <MessageCircleIcon className="size-[6mm] shrink-0" strokeWidth={2.5} />
-          <div className="leading-tight">
-            <p className="text-[7pt]">
-              Ada pertanyaan tentang obat? WhatsApp <b>{PHARMACIST_WA.name}</b>
-            </p>
-            <p className="text-[12pt] font-extrabold tracking-wide">{PHARMACIST_WA.phone}</p>
-          </div>
+        <aside className="mt-auto mb-[1.5mm] flex shrink-0 items-center gap-[1.5mm] rounded-[1mm] border-2 border-black px-[2mm] py-[0.8mm]">
+          <MessageCircleIcon className="size-[4mm] shrink-0" strokeWidth={2.5} />
+          <p className="text-[7.5pt] leading-tight whitespace-nowrap">
+            Tanya obat? WA <b>{PHARMACIST_WA.name}</b>
+          </p>
+          <p className="ml-auto text-[10pt] leading-tight font-extrabold whitespace-nowrap">{PHARMACIST_WA.phone}</p>
         </aside>
       </div>
 
@@ -190,10 +187,10 @@ export default function ShippingLabel({
             {payment && <b> · {PAYMENT_STATUS_LABELS[payment]}</b>}
           </p>
           <p className="mt-[0.5mm] text-[6.5pt] leading-tight">Scan QR untuk melacak pesanan, atau buka {window.location.host}/lacak</p>
-          <p className="mt-[0.8mm] flex items-center gap-[1mm] border-t border-black pt-[0.8mm] text-[7pt] leading-tight">
-            <MessageCircleIcon className="size-[3.5mm] shrink-0" strokeWidth={2.5} />
+          <p className="mt-[0.8mm] flex items-center gap-[1mm] border-t border-black pt-[0.8mm] text-[7pt] leading-tight whitespace-nowrap">
+            <MessageCircleIcon className="size-[3mm] shrink-0" strokeWidth={2.5} />
             <span>
-              Tanya obat: WA {PHARMACIST_WA.name} <b className="text-[8.5pt]">{PHARMACIST_WA.phone}</b>
+              WA {PHARMACIST_WA.name} <b>{PHARMACIST_WA.phone}</b>
             </span>
           </p>
         </div>
